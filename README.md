@@ -6,8 +6,6 @@
   </picture>
 </p>
 
-# Argos — Sistema de Gestión y Jerarquías Empresariales
-
 **Argos** es una aplicación de escritorio multiplataforma diseñada para la administración, control jerárquico y seguimiento de tareas en organizaciones. Permite gestionar estructuras corporativas, asignar roles con distintos niveles de acceso y monitorear el trabajo de los miembros en tiempo real desde un entorno local seguro.
 
 Este proyecto fue desarrollado como trabajo final para la materia **Programación II** de la carrera **Tecnicatura en Desarrollo de Software**.
