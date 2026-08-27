@@ -68,3 +68,9 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Database and local data
+*.db
+*.sqlite
+*.sqlite3
+data/
