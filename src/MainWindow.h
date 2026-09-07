@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QComboBox>
 #include <QTableWidget>
 #include <QPushButton>
 #include <sqlite3.h>
@@ -20,18 +21,28 @@ private slots:
     void handleEliminar();
     void handleLimpiar();
     void handleRowSelected(int row, int column);
+    void handleFiltrarPorEstado(int index);
 
 private:
     void initDatabase();
-    void cargarTabla();
+    void cargarTabla(const QString& filtroEstado = "Todos");
+
+    // Métodos de encriptación local para datos sensibles
+    static QString cifrar(const QString& texto);
+    static QString descifrar(const QString& texto);
 
     sqlite3* db = nullptr;
 
-    // Inputs de la interfaz
+    // Campos de entrada
     QLineEdit* txtId;
     QLineEdit* txtNombre;
-    QLineEdit* txtEmail;
+    QLineEdit* txtEmailSensible;
     QSpinBox* spinEdad;
+    QLineEdit* txtTarea;
+    QComboBox* comboEstado;
+
+    // Filtro de monitoreo
+    QComboBox* comboFiltroEstado;
 
     // Botones
     QPushButton* btnInsertar;
