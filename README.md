@@ -51,13 +51,46 @@ Argos/
 └── README.md               # Documentación del proyecto
 ```
 
-## 📋 Requisitos Previos
+## 📋 Requisitos Previos e Instalación de Dependencias
 
-* **Compilador C++:** GCC/Clang (Linux) o MinGW/MSVC (Windows) con soporte para C++17.
-* **CMake:** Versión 3.16 o superior.
-* **Qt 6:** Módulos `Qt6::Core`, `Qt6::Widgets` y `Qt6::Sql`.
+### 🐧 En Linux
 
-## ⚙️ Instalación y Compilación
+#### Debian / Ubuntu / Linux Mint
+```bash
+sudo apt update
+sudo apt install -y build-essential cmake qt6-base-dev libsqlite3-dev
+```
+
+#### Fedora / RHEL / CentOS
+```bash
+sudo dnf install -y @development-tools cmake qt6-qtbase-devel sqlite-devel
+```
+
+#### Arch Linux / Manjaro
+```bash
+sudo pacman -S --needed base-devel cmake qt6-base sqlite
+```
+
+---
+
+### 🪟 En Windows
+
+#### Opción A: Con MSYS2 (Entorno UCRT64 recomendado)
+Abrir la terminal **MSYS2 UCRT64** e instalar el compilador, Qt 6 y SQLite:
+```bash
+pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-qt6-base mingw-w64-ucrt-x86_64-sqlite3
+```
+
+#### Opción B: Con Qt Online Installer y MinGW
+1. Instalar **Qt 6 (con MinGW 64-bit)** y **CMake** desde sus instaladores oficiales.
+2. Indicar la ruta de Qt a CMake con `-DCMAKE_PREFIX_PATH`:
+   ```powershell
+   cmake -B build -S . -DCMAKE_PREFIX_PATH="C:/Qt/6.x.x/mingw_64"
+   ```
+
+---
+
+## ⚙️ Compilación y Ejecución
 
 ### 1. Clonar el repositorio
 
@@ -74,17 +107,17 @@ cd Argos
 mkdir build && cd build
 cmake ..
 make
-./Argos
+./CrudQtSqlite
 ```
 
 #### **En Windows (PowerShell / CMD con MinGW):**
 
-```dos
+```powershell
 mkdir build
 cd build
 cmake -G "MinGW Makefiles" ..
 mingw32-make
-.\Argos.exe
+.\CrudQtSqlite.exe
 ```
 
 ## 👥 Créditos y Organización

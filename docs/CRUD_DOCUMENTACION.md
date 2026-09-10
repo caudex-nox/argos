@@ -263,24 +263,66 @@ connect(comboFiltroEstado, QOverload<int>::of(&QComboBox::currentIndexChanged), 
 
 ## 8. Compilación y Ejecución
 
-### Requisitos
-* CMake (v3.16 o superior)
-* Compilador con soporte C++17 (MinGW / Clang / GCC)
-* Qt 6 (Widgets)
-* SQLite 3
+### 8.1 Instalación de Dependencias
 
-### Pasos con CMake
+#### 🐧 En Linux (Debian / Ubuntu / Linux Mint)
+El paquete clave de compilación es `build-essential` (que incluye `gcc`, `g++` y `make`). Además, se necesitan los encabezados de desarrollo de Qt 6 y SQLite 3:
 ```bash
+sudo apt update
+sudo apt install -y build-essential cmake qt6-base-dev libsqlite3-dev
+```
+
+#### 🐧 En Linux (Fedora / RHEL)
+```bash
+sudo dnf install -y @development-tools cmake qt6-qtbase-devel sqlite-devel
+```
+
+#### 🐧 En Linux (Arch Linux)
+```bash
+sudo pacman -S --needed base-devel cmake qt6-base sqlite
+```
+
+#### 🪟 En Windows
+
+* **Vía MSYS2 (UCRT64):**
+  ```bash
+  pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-qt6-base mingw-w64-ucrt-x86_64-sqlite3
+  ```
+* **Vía Qt Online Installer + MinGW:**
+  Tener instalado Qt 6.x y MinGW en el sistema, especificando el prefijo si no está en las variables de entorno globales:
+  ```powershell
+  cmake -B build -S . -DCMAKE_PREFIX_PATH="C:/Qt/6.x.x/mingw_64"
+  ```
+
+---
+
+### 8.2 Pasos de Compilación con CMake
+
+#### En Linux:
+```bash
+# Crear directorio de compilación
+mkdir build && cd build
+
+# Configurar y compilar
+cmake ..
+make
+
+# Ejecutar la aplicación
+./CrudQtSqlite
+```
+
+#### En Windows (PowerShell con MinGW):
+```powershell
 # Crear directorio de compilación
 mkdir build
 cd build
 
-# Generar makefiles
+# Generar Makefiles con MinGW
 cmake -G "MinGW Makefiles" ..
 
 # Compilar
 mingw32-make
 
-# Ejecutar aplicación
-./CrudQtSqlite.exe
+# Ejecutar la aplicación
+.\CrudQtSqlite.exe
 ```
