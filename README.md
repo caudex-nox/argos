@@ -6,27 +6,30 @@
   </picture>
 </p>
 
-**Argos** es una aplicación de escritorio multiplataforma diseñada para la administración, control jerárquico y seguimiento de tareas en organizaciones. Permite gestionar estructuras corporativas, asignar roles con distintos niveles de acceso y monitorear el trabajo de los miembros en tiempo real desde un entorno local seguro.
+# Argos | CRUD
+
+**Argos** es una aplicación de escritorio multiplataforma desarrollada en **C++17**, **Qt 6 (Widgets)** y **SQLite 3**, orientada a la administración de usuarios y al monitoreo de tareas en tiempo real. Permite realizar operaciones CRUD completas, gestionar estados de actividades y proteger información sensible mediante cifrado local, todo desde una interfaz gráfica clara y moderna.
 
 Este proyecto fue desarrollado como trabajo final para la materia **Programación II** de la carrera **Tecnicatura en Desarrollo de Software**.
 
 ---
 
-## 🚀 Características Principales
+## 🚀 Características Actuales
 
-* **Gestión de Organizaciones:** Creación de empresas y unificación de miembros mediante tokens únicos de invitación.
-* **Control Jerárquico de Roles:** Definición de rangos, permisos y estructuras organizativas personalizadas por el administrador.
-* **Administración de Tareas:** Asignación, seguimiento de estado (*Pendiente*, *En Proceso*, *Finalizado*) y monitoreo de actividades por usuario.
-* **Seguridad Local:** Encriptación de datos sensibles y almacenamiento en base de datos local protegida.
-* **Multiplataforma:** Diseñado y optimizado para ejecutar de forma nativa en entornos Linux y Windows.
+* **Operaciones CRUD Completas:** Alta, baja, modificación y consulta de registros de usuarios y tareas asociadas en una base de datos local SQLite.
+* **Monitoreo y Filtrado de Tareas:** Visualización tabular dinámica con filtro en tiempo real por estado (*Pendiente*, *En Proceso*, *Finalizado* y *Todos*).
+* **Seguridad y Cifrado Local:** Protección de datos sensibles (campo de correo electrónico) mediante cifrado simétrico por operación XOR y codificación Base64 en disco.
+* **Consultas Parametrizadas Seguras:** Comunicación nativa mediante la C API de SQLite 3 con sentencias preparadas (*Prepared Statements*) para optimizar el rendimiento y prevenir inyecciones SQL.
+* **Interfaz Gráfica Nativa:** Construida con Qt 6 Widgets (`QLineEdit`, `QSpinBox`, `QComboBox`, `QPushButton`, `QTableWidget`).
+* **Multiplataforma:** Diseñado y optimizado para compilar y ejecutar de forma nativa en entornos Linux y Windows.
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
 * **Lenguaje:** C++17
-* **Interfaz Gráfica:** Qt 6 (Módulos `Core`, `Widgets` y `Sql`)
-* **Base de Datos:** SQLite 3 / SQLCipher (Encriptación AES-256)
+* **Interfaz Gráfica:** Qt 6 (Módulo `Widgets`)
+* **Base de Datos:** SQLite 3 (API nativa de C)
 * **Sistema de Construcción:** CMake (v3.16+)
 
 ---
@@ -35,21 +38,32 @@ Este proyecto fue desarrollado como trabajo final para la materia **Programació
 
 ```text
 Argos/
-├── assets/                 # Recursos estáticos
-│   ├── images/             # Imágenes y logo para la app y README
-│   ├── icons/              # Iconos de la interfaz (.png, .svg)
-│   └── styles/             # Hojas de estilo QSS
-├── data/                   # Base de datos local (ignorada en el repositorio)
-├── src/
-│   ├── controllers/        # Lógica de negocio (Autenticación, Tareas, Roles)
-│   ├── database/           # Persistencia y gestión de SQLite
-│   ├── models/             # Estructuras de datos (Usuario, Empresa, Tarea)
-│   ├── ui/                 # Vistas y componentes de la interfaz en Qt
+├── assets/                 # Recursos gráficos
+│   └── images/             # Imágenes y logotipos para la aplicación y README
+├── docs/                   # Documentación técnica extendida
+│   └── CRUD_DOCUMENTACION.md # Guía detallada de arquitectura y ciclo de vida SQLite
+├── src/                    # Código fuente de la aplicación
+│   ├── MainWindow.h        # Definición de la clase MainWindow, campos y slots
+│   ├── MainWindow.cpp      # Lógica de interfaz, operaciones CRUD y acceso a SQLite
 │   └── main.cpp            # Punto de entrada de la aplicación
-├── .gitignore              # Archivos e historial excluidos de Git
+├── .gitignore              # Archivos y artefactos de compilación excluidos de Git
 ├── CMakeLists.txt          # Configuración de compilación con CMake
-└── README.md               # Documentación del proyecto
+└── README.md               # Documentación general del proyecto
 ```
+
+---
+
+## 🔮 Ideas a Futuro (Escalabilidad del Proyecto)
+
+Como parte del diseño conceptual inicial y como posibles líneas de evolución para continuar escalando el proyecto más allá del alcance de la materia, se contemplan las siguientes propuestas de mejora:
+
+* **🏢 Gestión de Organizaciones y Multi-empresa:** Creación de estructuras empresariales independientes y unificación de miembros mediante tokens de invitación únicos.
+* **👑 Control Jerárquico de Roles y Permisos:** Sistema granular de privilegios (administradores, supervisores, empleados) para restringir el acceso a módulos y operaciones específicas.
+* **🔐 Módulo de Autenticación y Cuentas de Usuario:** Flujo de inicio de sesión seguro (`LoginWindow`), gestión de sesiones y paneles de control dedicados (`DashboardWindow`).
+* **🛡️ Cifrado Avanzado con SQLCipher:** Migración del cifrado XOR a nivel de campo hacia una protección criptográfica robusta a nivel de archivo completo utilizando el estándar AES-256 de SQLCipher.
+* **🧩 Arquitectura Modular (MVC):** Desacoplar la lógica en controladores dedicados (`controllers/`), modelos de dominio (`models/`), vistas UI (`.ui`) y un administrador centralizado de persistencia (`DatabaseManager`).
+
+---
 
 ## 📋 Requisitos Previos e Instalación de Dependencias
 
@@ -107,7 +121,7 @@ cd Argos
 mkdir build && cd build
 cmake ..
 make
-./CrudQtSqlite
+./Argos-CRUD
 ```
 
 #### **En Windows (PowerShell / CMD con MinGW):**
@@ -117,8 +131,16 @@ mkdir build
 cd build
 cmake -G "MinGW Makefiles" ..
 mingw32-make
-.\CrudQtSqlite.exe
+.\Argos-CRUD.exe
 ```
+
+---
+
+## 📖 Documentación Técnica
+
+Para conocer en detalle la arquitectura de la base de datos, el ciclo de vida de las consultas SQLite3 con la API C y el mapeo de Señales y Slots en Qt 6, consulta el archivo [CRUD_DOCUMENTACION.md](docs/CRUD_DOCUMENTACION.md).
+
+---
 
 ## 👥 Créditos y Organización
 

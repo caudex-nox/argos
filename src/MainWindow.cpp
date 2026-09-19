@@ -29,7 +29,7 @@ QString MainWindow::descifrar(const QString& texto) {
 }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    setWindowTitle("CRUD de Usuarios y Monitoreo de Tareas");
+    setWindowTitle("Argos | CRUD");
     resize(900, 580);
 
     initDatabase();
