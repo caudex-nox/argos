@@ -9,6 +9,9 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QByteArray>
+#include <string>
+
+using namespace std;
 
 const quint8 CLAVE_ENCRIPTACION = 0x6C;
 
@@ -138,7 +141,7 @@ void MainWindow::initDatabase() {
 void MainWindow::cargarTabla(const QString& filtroEstado) {
     tablaUsuarios->setRowCount(0);
 
-    std::string query = "SELECT id, nombre, email, edad, tarea, estado FROM usuarios";
+    string query = "SELECT id, nombre, email, edad, tarea, estado FROM usuarios";
     if (filtroEstado != "Todos") {
         query += " WHERE estado = ?";
     }
