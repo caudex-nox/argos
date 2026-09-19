@@ -31,6 +31,9 @@ private:
     static QString cifrar(const QString& texto);
     static QString descifrar(const QString& texto);
 
+    // Enlace de parámetros SQL
+    static void bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, const QString& emailCifrado, int edad, const QString& tarea, const QString& estado);
+
     sqlite3* db = nullptr;
 
     // Campos de entrada

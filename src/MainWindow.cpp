@@ -31,6 +31,14 @@ QString MainWindow::descifrar(const QString& texto) {
     return QString::fromUtf8(bytes);
 }
 
+void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, const QString& emailCifrado, int edad, const QString& tarea, const QString& estado) {
+    sqlite3_bind_text(stmt, 1, nombre.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, emailCifrado.toLatin1().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 3, edad);
+    sqlite3_bind_text(stmt, 4, tarea.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 5, estado.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+}
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Argos | CRUD");
     resize(900, 580);
@@ -129,7 +137,8 @@ void MainWindow::initDatabase() {
                       "email TEXT NOT NULL, "
                       "edad INTEGER, "
                       "tarea TEXT, "
-                      "estado TEXT DEFAULT 'Pendiente');";
+                      "estado TEXT DEFAULT 'Pendiente'); "
+                      "CREATE INDEX IF NOT EXISTS idx_usuarios_estado ON usuarios(estado);";
 
     char* errMsg = nullptr;
     if (sqlite3_exec(db, sql, nullptr, nullptr, &errMsg) != SQLITE_OK) {
@@ -207,11 +216,7 @@ void MainWindow::handleInsertar() {
         return;
     }
 
-    sqlite3_bind_text(stmt, 1, nombre.toUtf8().constData(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, emailCifrado.toLatin1().constData(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int(stmt, 3, edad);
-    sqlite3_bind_text(stmt, 4, tarea.toUtf8().constData(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 5, estado.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    bindCamposUsuario(stmt, nombre, emailCifrado, edad, tarea, estado);
 
     if (sqlite3_step(stmt) == SQLITE_DONE) {
         handleLimpiar();
@@ -245,11 +250,7 @@ void MainWindow::handleActualizar() {
         return;
     }
 
-    sqlite3_bind_text(stmt, 1, nombre.toUtf8().constData(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, emailCifrado.toLatin1().constData(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int(stmt, 3, edad);
-    sqlite3_bind_text(stmt, 4, tarea.toUtf8().constData(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 5, estado.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    bindCamposUsuario(stmt, nombre, emailCifrado, edad, tarea, estado);
     sqlite3_bind_int(stmt, 6, id);
 
     if (sqlite3_step(stmt) == SQLITE_DONE) {
