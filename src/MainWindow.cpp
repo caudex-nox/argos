@@ -151,14 +151,14 @@ void MainWindow::cargarTabla(const QString& filtroEstado) {
     tablaUsuarios->setUpdatesEnabled(false);
     tablaUsuarios->setRowCount(0);
 
-    string query = "SELECT id, nombre, email, edad, tarea, estado FROM usuarios";
+    QString query = "SELECT id, nombre, email, edad, tarea, estado FROM usuarios";
     if (filtroEstado != "Todos") {
         query += " WHERE estado = ?";
     }
     query += " ORDER BY id DESC;";
 
     sqlite3_stmt* stmt;
-    if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+    if (sqlite3_prepare_v2(db, query.toUtf8().constData(), -1, &stmt, nullptr) != SQLITE_OK) {
         tablaUsuarios->setUpdatesEnabled(true);
         return;
     }
