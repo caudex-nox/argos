@@ -139,6 +139,7 @@ void MainWindow::initDatabase() {
 }
 
 void MainWindow::cargarTabla(const QString& filtroEstado) {
+    tablaUsuarios->setUpdatesEnabled(false);
     tablaUsuarios->setRowCount(0);
 
     string query = "SELECT id, nombre, email, edad, tarea, estado FROM usuarios";
@@ -149,6 +150,7 @@ void MainWindow::cargarTabla(const QString& filtroEstado) {
 
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        tablaUsuarios->setUpdatesEnabled(true);
         return;
     }
 
@@ -180,6 +182,7 @@ void MainWindow::cargarTabla(const QString& filtroEstado) {
         row++;
     }
     sqlite3_finalize(stmt);
+    tablaUsuarios->setUpdatesEnabled(true);
 }
 
 void MainWindow::handleInsertar() {
