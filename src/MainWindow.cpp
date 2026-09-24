@@ -42,7 +42,7 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Argos: Gestor de Tareas ");
     resize(900, 580);
-    setWindowIcon(QIcon(":/resources/argos-icon.svg"));
+    setWindowIcon(QIcon(":/resources/argos-icon.png"));
 
     initDatabase();
 
