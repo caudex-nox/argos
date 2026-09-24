@@ -206,6 +206,12 @@ void MainWindow::handleInsertar() {
         return;
     }
 
+    QRegularExpression regex(R"(^[^@\s]+@[^@\s]+\.[^@\s]{2,}$)");
+    if (!regex.match(email).hasMatch()) {
+        QMessageBox::warning(this, "Validación", "El formato del email no es válido. Asegúrate de incluir texto entre el '@' y el '.', y al menos dos letras al final.");
+        return;
+    }
+
     QString emailCifrado = cifrar(email);
 
     const char* sql = "INSERT INTO usuarios (nombre, email, edad, tarea, estado) VALUES (?, ?, ?, ?, ?);";
