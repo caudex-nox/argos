@@ -6,7 +6,7 @@
 #include <QComboBox>
 #include <QTableWidget>
 #include <QPushButton>
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
