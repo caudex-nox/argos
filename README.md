@@ -42,10 +42,17 @@ Argos/
 │   └── images/             # Imágenes y logotipos para la aplicación y README
 ├── docs/                   # Documentación técnica extendida
 │   └── CRUD_DOCUMENTACION.md # Guía detallada de arquitectura y ciclo de vida SQLite
+├── resources/              # Iconos y recursos para compilación Qt y Windows
+│   ├── app.qrc             # Archivo de recursos Qt embebidos
+│   ├── app.rc              # Metadatos e icono de aplicación para Windows
+│   ├── argos-icon.ico      # Icono en formato .ico para Windows
+│   └── argos-icon.png      # Icono en formato .png para ventanas Linux/Qt
 ├── src/                    # Código fuente de la aplicación
 │   ├── MainWindow.h        # Definición de la clase MainWindow, campos y slots
 │   ├── MainWindow.cpp      # Lógica de interfaz, operaciones CRUD y acceso a SQLite
-│   └── main.cpp            # Punto de entrada de la aplicación
+│   ├── main.cpp            # Punto de entrada de la aplicación
+│   ├── sqlite3.c           # Implementación C incrustada de SQLite 3 (amalgamation)
+│   └── sqlite3.h           # Cabecera C API de SQLite 3
 ├── .gitignore              # Archivos y artefactos de compilación excluidos de Git
 ├── CMakeLists.txt          # Configuración de compilación con CMake
 └── README.md               # Documentación general del proyecto
@@ -67,22 +74,25 @@ Como parte del diseño conceptual inicial y como posibles líneas de evolución 
 
 ## 📋 Requisitos Previos e Instalación de Dependencias
 
+> [!NOTE]
+> SQLite 3 se incluye directamente como código fuente embebido en el proyecto (`src/sqlite3.c` y `src/sqlite3.h`), por lo que **no es necesario** instalar paquetes de desarrollo de SQLite en el sistema operativo.
+
 ### 🐧 En Linux
 
 #### Debian / Ubuntu / Linux Mint
 ```bash
 sudo apt update
-sudo apt install -y build-essential cmake qt6-base-dev libsqlite3-dev
+sudo apt install -y build-essential cmake qt6-base-dev
 ```
 
 #### Fedora / RHEL / CentOS
 ```bash
-sudo dnf install -y @development-tools cmake qt6-qtbase-devel sqlite-devel
+sudo dnf install -y @development-tools cmake qt6-qtbase-devel
 ```
 
 #### Arch Linux / Manjaro
 ```bash
-sudo pacman -S --needed base-devel cmake qt6-base sqlite
+sudo pacman -S --needed base-devel cmake qt6-base
 ```
 
 ---
@@ -90,9 +100,9 @@ sudo pacman -S --needed base-devel cmake qt6-base sqlite
 ### 🪟 En Windows
 
 #### Opción A: Con MSYS2 (Entorno UCRT64 recomendado)
-Abrir la terminal **MSYS2 UCRT64** e instalar el compilador, Qt 6 y SQLite:
+Abrir la terminal **MSYS2 UCRT64** e instalar el compilador, CMake y Qt 6:
 ```bash
-pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-qt6-base mingw-w64-ucrt-x86_64-sqlite3
+pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-qt6-base
 ```
 
 #### Opción B: Con Qt Online Installer y MinGW
