@@ -109,8 +109,8 @@ pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/Caudex/Argos.git
-cd Argos
+git clone https://github.com/caudex-nox/argos.git
+cd argos
 ```
 
 ### 2. Compilar con CMake
