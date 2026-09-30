@@ -36,7 +36,7 @@ private:
 
     sqlite3* db = nullptr;
 
-    // Campos de entrada
+    // Campos de entrada (txtId es interno para operaciones CRUD y no se expone en la interfaz)
     QLineEdit* txtId;
     QLineEdit* txtNombre;
     QLineEdit* txtEmailSensible;

@@ -38,10 +38,25 @@ Este proyecto fue desarrollado como trabajo final para la materia **Programació
 
 ```text
 Argos/
+<<<<<<< Updated upstream
+├── assets/                 # Recursos estáticos
+│   ├── images/             # Imágenes y logo para la app y README
+│   ├── icons/              # Iconos de la interfaz (.png, .svg)
+│   └── styles/             # Hojas de estilo QSS
+├── data/                   # Base de datos local (ignorada en el repositorio)
+├── src/
+│   ├── controllers/        # Lógica de negocio (Autenticación, Tareas, Roles)
+│   ├── database/           # Persistencia y gestión de SQLite
+│   ├── models/             # Estructuras de datos (Usuario, Empresa, Tarea)
+│   ├── ui/                 # Vistas y componentes de la interfaz en Qt
+│   └── main.cpp            # Punto de entrada de la aplicación
+├── .gitignore              # Archivos e historial excluidos de Git
+=======
 ├── assets/                 # Recursos gráficos
 │   └── images/             # Imágenes y logotipos para la aplicación y README
-├── docs/                   # Documentación técnica extendida
-│   └── CRUD_DOCUMENTACION.md # Guía detallada de arquitectura y ciclo de vida SQLite
+├── docs/                   # Documentación del sistema
+│   ├── CRUD_DOCUMENTACION.md # Guía detallada de arquitectura y ciclo de vida SQLite
+│   └── MANUAL_DE_USUARIO.md  # Manual de usuario y guía operativa de la aplicación
 ├── resources/              # Iconos y recursos para compilación Qt y Windows
 │   ├── app.qrc             # Archivo de recursos Qt embebidos
 │   ├── app.rc              # Metadatos e icono de aplicación para Windows
@@ -54,6 +69,7 @@ Argos/
 │   ├── sqlite3.c           # Implementación C incrustada de SQLite 3 (amalgamation)
 │   └── sqlite3.h           # Cabecera C API de SQLite 3
 ├── .gitignore              # Archivos y artefactos de compilación excluidos de Git
+>>>>>>> Stashed changes
 ├── CMakeLists.txt          # Configuración de compilación con CMake
 └── README.md               # Documentación general del proyecto
 ```
@@ -141,17 +157,21 @@ mkdir build
 cd build
 cmake -G "MinGW Makefiles" ..
 mingw32-make
-.\Argos-CRUD.exe
+.\CrudQtSqlite.exe
 ```
 
+<<<<<<< Updated upstream
+=======
 ---
 
-## 📖 Documentación Técnica
+## 📖 Documentación y Manuales
 
-Para conocer en detalle la arquitectura de la base de datos, el ciclo de vida de las consultas SQLite3 con la API C y el mapeo de Señales y Slots en Qt 6, consulta el archivo [CRUD_DOCUMENTACION.md](docs/CRUD_DOCUMENTACION.md).
+* 📘 **Manual de Usuario:** Consulta el [MANUAL_DE_USUARIO.md](docs/MANUAL_DE_USUARIO.md) para aprender a utilizar la interfaz, dar de alta registros, filtrar actividades y comprender las validaciones del sistema.
+* 🛠️ **Documentación Técnica:** Para conocer en detalle la arquitectura de la base de datos, el ciclo de vida de las consultas SQLite3 con la API C y el mapeo de Señales y Slots en Qt 6, consulta el archivo [CRUD_DOCUMENTACION.md](docs/CRUD_DOCUMENTACION.md).
 
 ---
 
+>>>>>>> Stashed changes
 ## 👥 Créditos y Organización
 
 Proyecto desarrollado por el equipo de **Caudex**.
