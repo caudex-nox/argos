@@ -9,6 +9,8 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QByteArray>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 
 const quint8 CLAVE_ENCRIPTACION = 0x6C;
 
@@ -37,7 +39,7 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
 }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    setWindowTitle("Argos: Gestor de Tareas ");
+    setWindowTitle("Argos: Gestor de Tareas");
     resize(900, 580);
     setWindowIcon(QIcon(":/resources/argos-icon.png"));
 
@@ -47,13 +49,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
 
     QFormLayout* formLayout = new QFormLayout();
-    // Campo ID interno para operaciones CRUD, oculto de la interfaz de usuario
+    
     txtId = new QLineEdit();
     txtId->setVisible(false);
 
     txtNombre = new QLineEdit();
     txtNombre->setPlaceholderText("Solo letras (ej: Juan Pérez)");
-    // Restricción en tiempo real: solo letras (con tildes/ñ) y espacios; no se permiten números ni caracteres especiales
     QRegularExpression regexSoloLetras(R"(^[\p{L} ]*$)");
     txtNombre->setValidator(new QRegularExpressionValidator(regexSoloLetras, this));
 
@@ -70,7 +71,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     comboEstado = new QComboBox();
     comboEstado->addItems({"Pendiente", "En Proceso", "Finalizado"});
 
-    // El autoincremental (primary key) no se muestra en el formulario
     formLayout->addRow("Nombre:", txtNombre);
     formLayout->addRow("Email (Dato Protegido):", txtEmailSensible);
     formLayout->addRow("Edad:", spinEdad);
@@ -101,7 +101,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     tablaUsuarios = new QTableWidget();
     tablaUsuarios->setColumnCount(6);
     tablaUsuarios->setHorizontalHeaderLabels({"ID", "Nombre", "Email (Descifrado)", "Edad", "Tarea", "Estado"});
-    tablaUsuarios->setColumnHidden(0, true); // Oculta la columna de clave primaria autoincremental en la vista
+    tablaUsuarios->setColumnHidden(0, true);
     tablaUsuarios->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     tablaUsuarios->setSelectionBehavior(QAbstractItemView::SelectRows);
     tablaUsuarios->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -210,27 +210,18 @@ void MainWindow::handleInsertar() {
         return;
     }
 
-    QRegularExpression regex(R"(^[^@\s]+@[^@\s]+\.[^@\s]{2,}$)");
-    if (!regex.match(email).hasMatch()) {
-        QMessageBox::warning(this, "Validación", "El formato del email no es válido. Asegúrate de incluir texto entre el '@' y el '.', y al menos dos letras al final.");
-        return;
-    }
-
-<<<<<<< Updated upstream
-=======
     QRegularExpression regexNombre(R"(^[\p{L}]+(?:\s+[\p{L}]+)*$)");
     if (!regexNombre.match(nombre).hasMatch()) {
         QMessageBox::warning(this, "Validación", "El Nombre solo debe contener letras (sin números ni caracteres especiales).");
         return;
     }
 
-    QRegularExpression regex(R"(^[^@\s]+@[^@\s]+\.[^@\s]{2,}$)");
-    if (!regex.match(email).hasMatch()) {
+    QRegularExpression regexEmail(R"(^[^@\s]+@[^@\s]+\.[^@\s]{2,}$)");
+    if (!regexEmail.match(email).hasMatch()) {
         QMessageBox::warning(this, "Validación", "El formato del email no es válido. Asegúrate de incluir texto entre el '@' y el '.', y al menos dos letras al final.");
         return;
     }
 
->>>>>>> Stashed changes
     QString emailCifrado = cifrar(email);
 
     const char* sql = "INSERT INTO usuarios (nombre, email, edad, tarea, estado) VALUES (?, ?, ?, ?, ?);";
