@@ -100,6 +100,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     tablaUsuarios = new QTableWidget();
     tablaUsuarios->setColumnCount(6);
+    tablaUsuarios->verticalHeader()->setVisible(false);
     tablaUsuarios->setHorizontalHeaderLabels({"ID", "Nombre", "Email (Descifrado)", "Edad", "Tarea", "Estado"});
     tablaUsuarios->setColumnHidden(0, true);
     tablaUsuarios->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
