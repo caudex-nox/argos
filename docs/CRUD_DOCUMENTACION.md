@@ -99,9 +99,17 @@ Para garantizar el rendimiento y prevenir vulnerabilidades de **Inyección SQL**
 * **Disparador:** Señal `clicked()` de `btnInsertar`.
 
 #### Flujo paso a paso:
+<<<<<<< Updated upstream
 1. **Validación:** Se comprueba que `nombre` y `email` contengan texto válido.
 2. **Cifrado:** El correo se cifra mediante la función `cifrar()`.
 3. **Preparación y Enlace de Parámetros:**
+=======
+1. **Validación de Campos Requeridos:** Se comprueba que `nombre` y `email` no estén vacíos.
+2. **Validación de Formato de Nombre:** Se restringe la entrada tanto en tiempo real mediante `QRegularExpressionValidator` como al enviar el formulario mediante la expresión regular `QRegularExpression(R"(^[\p{L}]+(?:\s+[\p{L}]+)*$)")`. Esto garantiza que el nombre únicamente contenga caracteres alfabéticos (incluyendo tildes, diéresis y la letra ñ) y espacios individuales, prohibiendo números o caracteres especiales.
+3. **Validación de Formato de Email:** Se utiliza una expresión regular estricta (`QRegularExpression regex(R"(^[^@\s]+@[^@\s]+\.[^@\s]{2,}$)")`) para verificar que el correo cuente con estructura de usuario, dominio y extensión válidos.
+4. **Cifrado del Email:** Se transforma el correo en texto cifrado seguro mediante `cifrar(email)`.
+5. **Preparación y Enlace:**
+>>>>>>> Stashed changes
    ```cpp
    const char* sql = "INSERT INTO usuarios (nombre, email, edad, tarea, estado) VALUES (?, ?, ?, ?, ?);";
    sqlite3_stmt* stmt;
@@ -172,8 +180,14 @@ Para garantizar el rendimiento y prevenir vulnerabilidades de **Inyección SQL**
 * **Disparador:** Señal `clicked()` de `btnActualizar`.
 
 #### Flujo paso a paso:
+<<<<<<< Updated upstream
 1. **Comprobación de ID:** Requiere que el campo de solo lectura `txtId` tenga un ID cargado (seleccionado previamente de la tabla).
 2. **Consulta Parametrizada:**
+=======
+1. **Comprobación de Selección:** Requiere que exista un ID cargado en memoria (`txtId`) tras seleccionar una fila de la tabla.
+2. **Validación de Datos:** Se aplican los mismos filtros que en la inserción: presencia de campos obligatorios, validación de caracteres del nombre (solo letras y espacios individuales) y validez del correo electrónico.
+3. **Consulta Parametrizada:**
+>>>>>>> Stashed changes
    ```sql
    UPDATE usuarios SET nombre = ?, email = ?, edad = ?, tarea = ?, estado = ? WHERE id = ?;
    ```
@@ -246,7 +260,12 @@ connect(tablaUsuarios, &QTableWidget::cellClicked, this, &MainWindow::handleRowS
 connect(comboFiltroEstado, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::handleFiltrarPorEstado);
 ```
 
+<<<<<<< Updated upstream
 * **Selección de Fila:** Al hacer clic en cualquier celda de `QTableWidget`, el slot `handleRowSelected(int row, int col)` rellena automáticamente los campos del formulario con los valores de la fila elegida para facilitar la edición o eliminación.
+=======
+* **Carga de Registro al Formulario:** Al hacer clic en cualquier celda de `tablaUsuarios`, el slot `handleRowSelected(int row, int col)` extrae los datos de la fila y los coloca en los campos del formulario (`txtNombre`, `txtEmailSensible`, `spinEdad`, `txtTarea`, `comboEstado`) y almacena internamente el ID en `txtId` para habilitar operaciones de actualización o eliminación.
+* **Ocultación de la Clave Primaria:** Por motivos de diseño y seguridad de la información, el ID autoincremental (`PRIMARY KEY`) no es visible en la interfaz: la primera columna de `tablaUsuarios` se mantiene oculta mediante `tablaUsuarios->setColumnHidden(0, true)` y el campo `txtId` no se incluye en el formulario visual.
+>>>>>>> Stashed changes
 
 ---
 
