@@ -61,9 +61,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     txtEmailSensible = new QLineEdit();
     txtEmailSensible->setPlaceholderText("Se almacenará cifrado en la BD");
 
-    spinEdad = new QSpinBox();
-    spinEdad->setRange(1, 120);
-    spinEdad->setValue(25);
+    spinEdad = new AgeSpinBox(this);
 
     txtTarea = new QLineEdit();
     txtTarea->setPlaceholderText("Ej: Revisión de inventario / Deploy");
@@ -202,7 +200,6 @@ void MainWindow::cargarTabla(const QString& filtroEstado) {
 void MainWindow::handleInsertar() {
     QString nombre = txtNombre->text().trimmed();
     QString email = txtEmailSensible->text().trimmed();
-    int edad = spinEdad->value();
     QString tarea = txtTarea->text().trimmed();
     QString estado = comboEstado->currentText();
 
@@ -210,6 +207,13 @@ void MainWindow::handleInsertar() {
         QMessageBox::warning(this, "Validación", "Nombre y Email son requeridos.");
         return;
     }
+
+    if (!spinEdad->hasValidAge()) {
+        QMessageBox::warning(this, "Validación", "La edad es requerida y debe estar comprendida entre 18 y 60 años.");
+        return;
+    }
+
+    int edad = spinEdad->getAge();
 
     QRegularExpression regexNombre(R"(^[\p{L}]+(?:\s+[\p{L}]+)*$)");
     if (!regexNombre.match(nombre).hasMatch()) {
@@ -253,7 +257,6 @@ void MainWindow::handleActualizar() {
     int id = txtId->text().toInt();
     QString nombre = txtNombre->text().trimmed();
     QString email = txtEmailSensible->text().trimmed();
-    int edad = spinEdad->value();
     QString tarea = txtTarea->text().trimmed();
     QString estado = comboEstado->currentText();
 
@@ -261,6 +264,13 @@ void MainWindow::handleActualizar() {
         QMessageBox::warning(this, "Validación", "Nombre y Email son requeridos.");
         return;
     }
+
+    if (!spinEdad->hasValidAge()) {
+        QMessageBox::warning(this, "Validación", "La edad es requerida y debe estar comprendida entre 18 y 60 años.");
+        return;
+    }
+
+    int edad = spinEdad->getAge();
 
     QRegularExpression regexNombre(R"(^[\p{L}]+(?:\s+[\p{L}]+)*$)");
     if (!regexNombre.match(nombre).hasMatch()) {
@@ -326,7 +336,7 @@ void MainWindow::handleLimpiar() {
     txtId->clear();
     txtNombre->clear();
     txtEmailSensible->clear();
-    spinEdad->setValue(25);
+    spinEdad->clear();
     txtTarea->clear();
     comboEstado->setCurrentIndex(0);
     tablaUsuarios->clearSelection();

@@ -62,7 +62,7 @@ La ventana principal de Argos se encuentra dividida en 4 secciones funcionales:
 │ [1] FORMULARIO DE DATOS:                                               │
 │     Nombre:                 [ Campo de texto (solo letras)          ]  │
 │     Email (Dato Protegido): [ correo@dominio.com                    ]  │
-│     Edad:                   [ 25 ▲▼ ]                                  │
+│     Edad:                   [ 18 - 60 ▲▼ ]                             │
 │     Tarea Asignada:         [ Ej: Revisión de inventario / Deploy   ]  │
 │     Estado de la Tarea:     [ Pendiente ▼ ]                            │
 │                                                                        │
@@ -112,7 +112,7 @@ Para garantizar la integridad y coherencia de los datos almacenados, Argos imple
 
 1. En el campo **Nombre**, escriba el nombre y apellido del usuario (ej: `Carlos Mendoza`). *Observe que si intenta presionar teclas numéricas o símbolos, el sistema las ignorará automáticamente*.
 2. En el campo **Email (Dato Protegido)**, ingrese una dirección de correo válida (ej: `carlos.mendoza@empresa.com`).
-3. En el campo **Edad**, seleccione la edad correspondiente mediante las flechas o escribiendo el número.
+3. En el campo **Edad**, ingrese la edad correspondiente (entre 18 y 60 años) escribiendo el número o mediante las flechas. El campo inicia vacío para requerir su carga manual obligatoria.
 4. En **Tarea Asignada**, escriba la descripción de la labor asignada.
 5. En **Estado de la Tarea**, elija el estado inicial (`Pendiente`, `En Proceso` o `Finalizado`).
 6. Presione el botón **Insertar**.
@@ -162,7 +162,7 @@ Para monitorear el flujo de trabajo:
 
 Si cargó un registro en el formulario pero prefiere cancelar la edición o desea preparar los campos para insertar un nuevo usuario desde cero:
 1. Presione el botón **Limpiar Formulario**.
-2. Se vaciarán los campos de texto, se deseleccionará la fila activa de la tabla y la edad volverá a su valor predeterminado (25).
+2. Se vaciarán los campos de texto, se deseleccionará la fila activa de la tabla y el campo de edad volverá a quedar vacío para una nueva carga manual.
 
 ---
 

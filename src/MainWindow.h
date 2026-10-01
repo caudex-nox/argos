@@ -2,7 +2,7 @@
 
 #include <QMainWindow>
 #include <QLineEdit>
-#include <QSpinBox>
+#include "AgeSpinBox.h"
 #include <QComboBox>
 #include <QTableWidget>
 #include <QPushButton>
@@ -40,7 +40,7 @@ private:
     QLineEdit* txtId;
     QLineEdit* txtNombre;
     QLineEdit* txtEmailSensible;
-    QSpinBox* spinEdad;
+    AgeSpinBox* spinEdad;
     QLineEdit* txtTarea;
     QComboBox* comboEstado;
 

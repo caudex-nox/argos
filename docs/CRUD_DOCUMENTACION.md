@@ -113,7 +113,7 @@ CREATE INDEX IF NOT EXISTS idx_usuarios_estado ON usuarios(estado);
 | `id` | `INTEGER` | Identificador único autoincremental | Clave primaria (`PRIMARY KEY AUTOINCREMENT`) |
 | `nombre` | `TEXT` | Nombre del usuario/empleado | `NOT NULL` |
 | `email` | `TEXT` | Correo electrónico almacenado en formato cifrado (XOR + Base64) | `NOT NULL` |
-| `edad` | `INTEGER` | Edad del usuario | Rango configurable (1-120) |
+| `edad` | `INTEGER` | Edad del usuario | Rango validado (18-60), ingreso manual requerido |
 | `tarea` | `TEXT` | Descripción de la actividad asignada | Opcional |
 | `estado` | `TEXT` | Estado de progreso de la tarea asignada | Por defecto `'Pendiente'` (`'Pendiente'`, `'En Proceso'`, `'Finalizado'`) |
 

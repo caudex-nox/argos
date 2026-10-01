@@ -18,6 +18,7 @@ add_executable(Argos-CRUD
     src/main.cpp
     src/MainWindow.h
     src/MainWindow.cpp
+    src/AgeSpinBox.h
     src/sqlite3.c
     resources/app.qrc
     ${WINDOWS_RESOURCES}
