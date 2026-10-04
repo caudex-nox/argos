@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Sql)
 
@@ -18,10 +19,15 @@ add_executable(Argos-CRUD
     src/main.cpp
     src/MainWindow.h
     src/MainWindow.cpp
+    src/MainWindow.ui
     src/AgeSpinBox.h
     src/sqlite3.c
     resources/app.qrc
     ${WINDOWS_RESOURCES}
+)
+
+target_include_directories(Argos-CRUD PRIVATE 
+    src
 )
 
 target_link_libraries(Argos-CRUD PRIVATE 

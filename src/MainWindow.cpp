@@ -1,11 +1,7 @@
 #include "MainWindow.h"
-
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QFormLayout>
+#include "ui_MainWindow.h"
 #include <QMessageBox>
 #include <QHeaderView>
-#include <QLabel>
 #include <QStandardPaths>
 #include <QDir>
 #include <QByteArray>
@@ -38,87 +34,32 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
     sqlite3_bind_text(stmt, 5, estado.toUtf8().constData(), -1, SQLITE_TRANSIENT);
 }
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    setWindowTitle("Argos: Gestor de Tareas");
-    resize(900, 580);
-    setWindowIcon(QIcon(":/resources/argos-icon.png"));
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
+    ui->setupUi(this);
+
+    // Configuración de validación para el campo Nombre
+    QRegularExpression regexSoloLetras(R"(^[\p{L} ]*$)");
+    ui->txtNombre->setValidator(new QRegularExpressionValidator(regexSoloLetras, this));
+
+    // Configuración de la tabla de visualización
+    ui->tablaUsuarios->setColumnHidden(0, true);
+    ui->tablaUsuarios->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     initDatabase();
 
-    QWidget* centralWidget = new QWidget(this);
-    QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
-
-    QFormLayout* formLayout = new QFormLayout();
-    
-    txtId = new QLineEdit();
-    txtId->setVisible(false);
-
-    txtNombre = new QLineEdit();
-    txtNombre->setPlaceholderText("Solo letras (ej: Juan Pérez)");
-    QRegularExpression regexSoloLetras(R"(^[\p{L} ]*$)");
-    txtNombre->setValidator(new QRegularExpressionValidator(regexSoloLetras, this));
-
-    txtEmailSensible = new QLineEdit();
-    txtEmailSensible->setPlaceholderText("Se almacenará cifrado en la BD");
-
-    spinEdad = new AgeSpinBox(this);
-
-    txtTarea = new QLineEdit();
-    txtTarea->setPlaceholderText("Ej: Revisión de inventario / Deploy");
-
-    comboEstado = new QComboBox();
-    comboEstado->addItems({"Pendiente", "En Proceso", "Finalizado"});
-
-    formLayout->addRow("Nombre:", txtNombre);
-    formLayout->addRow("Email (Dato Protegido):", txtEmailSensible);
-    formLayout->addRow("Edad:", spinEdad);
-    formLayout->addRow("Tarea Asignada:", txtTarea);
-    formLayout->addRow("Estado de la Tarea:", comboEstado);
-    mainLayout->addLayout(formLayout);
-
-    QHBoxLayout* btnLayout = new QHBoxLayout();
-    btnInsertar = new QPushButton("Insertar");
-    btnActualizar = new QPushButton("Actualizar");
-    btnEliminar = new QPushButton("Eliminar");
-    btnLimpiar = new QPushButton("Limpiar Formulario");
-
-    btnLayout->addWidget(btnInsertar);
-    btnLayout->addWidget(btnActualizar);
-    btnLayout->addWidget(btnEliminar);
-    btnLayout->addWidget(btnLimpiar);
-    mainLayout->addLayout(btnLayout);
-
-    QHBoxLayout* filterLayout = new QHBoxLayout();
-    filterLayout->addWidget(new QLabel("<b>Monitoreo por Estado:</b>"));
-    comboFiltroEstado = new QComboBox();
-    comboFiltroEstado->addItems({"Todos", "Pendiente", "En Proceso", "Finalizado"});
-    filterLayout->addWidget(comboFiltroEstado);
-    filterLayout->addStretch();
-    mainLayout->addLayout(filterLayout);
-
-    tablaUsuarios = new QTableWidget();
-    tablaUsuarios->setColumnCount(6);
-    tablaUsuarios->verticalHeader()->setVisible(false);
-    tablaUsuarios->setHorizontalHeaderLabels({"ID", "Nombre", "Email (Descifrado)", "Edad", "Tarea", "Estado"});
-    tablaUsuarios->setColumnHidden(0, true);
-    tablaUsuarios->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    tablaUsuarios->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tablaUsuarios->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    mainLayout->addWidget(tablaUsuarios);
-
-    setCentralWidget(centralWidget);
-
-    connect(btnInsertar, &QPushButton::clicked, this, &MainWindow::handleInsertar);
-    connect(btnActualizar, &QPushButton::clicked, this, &MainWindow::handleActualizar);
-    connect(btnEliminar, &QPushButton::clicked, this, &MainWindow::handleEliminar);
-    connect(btnLimpiar, &QPushButton::clicked, this, &MainWindow::handleLimpiar);
-    connect(tablaUsuarios, &QTableWidget::cellClicked, this, &MainWindow::handleRowSelected);
-    connect(comboFiltroEstado, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::handleFiltrarPorEstado);
+    // Mapeo de Señales y Slots
+    connect(ui->btnInsertar, &QPushButton::clicked, this, &MainWindow::handleInsertar);
+    connect(ui->btnActualizar, &QPushButton::clicked, this, &MainWindow::handleActualizar);
+    connect(ui->btnEliminar, &QPushButton::clicked, this, &MainWindow::handleEliminar);
+    connect(ui->btnLimpiar, &QPushButton::clicked, this, &MainWindow::handleLimpiar);
+    connect(ui->tablaUsuarios, &QTableWidget::cellClicked, this, &MainWindow::handleRowSelected);
+    connect(ui->comboFiltroEstado, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::handleFiltrarPorEstado);
 
     cargarTabla();
 }
 
 MainWindow::~MainWindow() {
+    delete ui;
     if (db) {
         sqlite3_close(db);
     }
@@ -151,8 +92,8 @@ void MainWindow::initDatabase() {
 }
 
 void MainWindow::cargarTabla(const QString& filtroEstado) {
-    tablaUsuarios->setUpdatesEnabled(false);
-    tablaUsuarios->setRowCount(0);
+    ui->tablaUsuarios->setUpdatesEnabled(false);
+    ui->tablaUsuarios->setRowCount(0);
 
     QString query = "SELECT id, nombre, email, edad, tarea, estado FROM usuarios";
     if (filtroEstado != "Todos") {
@@ -162,7 +103,7 @@ void MainWindow::cargarTabla(const QString& filtroEstado) {
 
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, query.toUtf8().constData(), -1, &stmt, nullptr) != SQLITE_OK) {
-        tablaUsuarios->setUpdatesEnabled(true);
+        ui->tablaUsuarios->setUpdatesEnabled(true);
         return;
     }
 
@@ -172,7 +113,7 @@ void MainWindow::cargarTabla(const QString& filtroEstado) {
 
     int row = 0;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        tablaUsuarios->insertRow(row);
+        ui->tablaUsuarios->insertRow(row);
 
         int id = sqlite3_column_int(stmt, 0);
         QString nombre = QString::fromUtf8(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
@@ -184,36 +125,36 @@ void MainWindow::cargarTabla(const QString& filtroEstado) {
 
         QString emailClaro = descifrar(emailCifrado);
 
-        tablaUsuarios->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
-        tablaUsuarios->setItem(row, 1, new QTableWidgetItem(nombre));
-        tablaUsuarios->setItem(row, 2, new QTableWidgetItem(emailClaro));
-        tablaUsuarios->setItem(row, 3, new QTableWidgetItem(QString::number(edad)));
-        tablaUsuarios->setItem(row, 4, new QTableWidgetItem(tareaTxt ? QString::fromUtf8(tareaTxt) : ""));
-        tablaUsuarios->setItem(row, 5, new QTableWidgetItem(estadoTxt ? QString::fromUtf8(estadoTxt) : "Pendiente"));
+        ui->tablaUsuarios->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
+        ui->tablaUsuarios->setItem(row, 1, new QTableWidgetItem(nombre));
+        ui->tablaUsuarios->setItem(row, 2, new QTableWidgetItem(emailClaro));
+        ui->tablaUsuarios->setItem(row, 3, new QTableWidgetItem(QString::number(edad)));
+        ui->tablaUsuarios->setItem(row, 4, new QTableWidgetItem(tareaTxt ? QString::fromUtf8(tareaTxt) : ""));
+        ui->tablaUsuarios->setItem(row, 5, new QTableWidgetItem(estadoTxt ? QString::fromUtf8(estadoTxt) : "Pendiente"));
 
         row++;
     }
     sqlite3_finalize(stmt);
-    tablaUsuarios->setUpdatesEnabled(true);
+    ui->tablaUsuarios->setUpdatesEnabled(true);
 }
 
 void MainWindow::handleInsertar() {
-    QString nombre = txtNombre->text().trimmed();
-    QString email = txtEmailSensible->text().trimmed();
-    QString tarea = txtTarea->text().trimmed();
-    QString estado = comboEstado->currentText();
+    QString nombre = ui->txtNombre->text().trimmed();
+    QString email = ui->txtEmailSensible->text().trimmed();
+    QString tarea = ui->txtTarea->text().trimmed();
+    QString estado = ui->comboEstado->currentText();
 
     if (nombre.isEmpty() || email.isEmpty()) {
         QMessageBox::warning(this, "Validación", "Nombre y Email son requeridos.");
         return;
     }
 
-    if (!spinEdad->hasValidAge()) {
+    if (!ui->spinEdad->hasValidAge()) {
         QMessageBox::warning(this, "Validación", "La edad es requerida y debe estar comprendida entre 18 y 60 años.");
         return;
     }
 
-    int edad = spinEdad->getAge();
+    int edad = ui->spinEdad->getAge();
 
     QRegularExpression regexNombre(R"(^[\p{L}]+(?:\s+[\p{L}]+)*$)");
     if (!regexNombre.match(nombre).hasMatch()) {
@@ -241,7 +182,7 @@ void MainWindow::handleInsertar() {
 
     if (sqlite3_step(stmt) == SQLITE_DONE) {
         handleLimpiar();
-        cargarTabla(comboFiltroEstado->currentText());
+        cargarTabla(ui->comboFiltroEstado->currentText());
     } else {
         QMessageBox::critical(this, "Error", sqlite3_errmsg(db));
     }
@@ -249,28 +190,28 @@ void MainWindow::handleInsertar() {
 }
 
 void MainWindow::handleActualizar() {
-    if (txtId->text().isEmpty()) {
+    if (ui->txtId->text().isEmpty()) {
         QMessageBox::warning(this, "Aviso", "Selecciona primero un registro de la tabla.");
         return;
     }
 
-    int id = txtId->text().toInt();
-    QString nombre = txtNombre->text().trimmed();
-    QString email = txtEmailSensible->text().trimmed();
-    QString tarea = txtTarea->text().trimmed();
-    QString estado = comboEstado->currentText();
+    int id = ui->txtId->text().toInt();
+    QString nombre = ui->txtNombre->text().trimmed();
+    QString email = ui->txtEmailSensible->text().trimmed();
+    QString tarea = ui->txtTarea->text().trimmed();
+    QString estado = ui->comboEstado->currentText();
 
     if (nombre.isEmpty() || email.isEmpty()) {
         QMessageBox::warning(this, "Validación", "Nombre y Email son requeridos.");
         return;
     }
 
-    if (!spinEdad->hasValidAge()) {
+    if (!ui->spinEdad->hasValidAge()) {
         QMessageBox::warning(this, "Validación", "La edad es requerida y debe estar comprendida entre 18 y 60 años.");
         return;
     }
 
-    int edad = spinEdad->getAge();
+    int edad = ui->spinEdad->getAge();
 
     QRegularExpression regexNombre(R"(^[\p{L}]+(?:\s+[\p{L}]+)*$)");
     if (!regexNombre.match(nombre).hasMatch()) {
@@ -299,7 +240,7 @@ void MainWindow::handleActualizar() {
 
     if (sqlite3_step(stmt) == SQLITE_DONE) {
         handleLimpiar();
-        cargarTabla(comboFiltroEstado->currentText());
+        cargarTabla(ui->comboFiltroEstado->currentText());
     } else {
         QMessageBox::critical(this, "Error", sqlite3_errmsg(db));
     }
@@ -307,12 +248,12 @@ void MainWindow::handleActualizar() {
 }
 
 void MainWindow::handleEliminar() {
-    if (txtId->text().isEmpty()) {
+    if (ui->txtId->text().isEmpty()) {
         QMessageBox::warning(this, "Aviso", "Selecciona un registro de la tabla.");
         return;
     }
 
-    int id = txtId->text().toInt();
+    int id = ui->txtId->text().toInt();
     const char* sql = "DELETE FROM usuarios WHERE id = ?;";
     sqlite3_stmt* stmt;
 
@@ -325,7 +266,7 @@ void MainWindow::handleEliminar() {
 
     if (sqlite3_step(stmt) == SQLITE_DONE) {
         handleLimpiar();
-        cargarTabla(comboFiltroEstado->currentText());
+        cargarTabla(ui->comboFiltroEstado->currentText());
     } else {
         QMessageBox::critical(this, "Error", sqlite3_errmsg(db));
     }
@@ -333,29 +274,29 @@ void MainWindow::handleEliminar() {
 }
 
 void MainWindow::handleLimpiar() {
-    txtId->clear();
-    txtNombre->clear();
-    txtEmailSensible->clear();
-    spinEdad->clear();
-    txtTarea->clear();
-    comboEstado->setCurrentIndex(0);
-    tablaUsuarios->clearSelection();
+    ui->txtId->clear();
+    ui->txtNombre->clear();
+    ui->txtEmailSensible->clear();
+    ui->spinEdad->clear();
+    ui->txtTarea->clear();
+    ui->comboEstado->setCurrentIndex(0);
+    ui->tablaUsuarios->clearSelection();
 }
 
 void MainWindow::handleRowSelected(int row, int) {
-    if (row < 0 || !tablaUsuarios->item(row, 0)) return;
+    if (row < 0 || !ui->tablaUsuarios->item(row, 0)) return;
 
-    txtId->setText(tablaUsuarios->item(row, 0)->text());
-    txtNombre->setText(tablaUsuarios->item(row, 1)->text());
-    txtEmailSensible->setText(tablaUsuarios->item(row, 2)->text());
-    spinEdad->setValue(tablaUsuarios->item(row, 3)->text().toInt());
-    txtTarea->setText(tablaUsuarios->item(row, 4)->text());
+    ui->txtId->setText(ui->tablaUsuarios->item(row, 0)->text());
+    ui->txtNombre->setText(ui->tablaUsuarios->item(row, 1)->text());
+    ui->txtEmailSensible->setText(ui->tablaUsuarios->item(row, 2)->text());
+    ui->spinEdad->setValue(ui->tablaUsuarios->item(row, 3)->text().toInt());
+    ui->txtTarea->setText(ui->tablaUsuarios->item(row, 4)->text());
 
-    QString estado = tablaUsuarios->item(row, 5)->text();
-    int idx = comboEstado->findText(estado);
-    if (idx != -1) comboEstado->setCurrentIndex(idx);
+    QString estado = ui->tablaUsuarios->item(row, 5)->text();
+    int idx = ui->comboEstado->findText(estado);
+    if (idx != -1) ui->comboEstado->setCurrentIndex(idx);
 }
 
 void MainWindow::handleFiltrarPorEstado(int) {
-    cargarTabla(comboFiltroEstado->currentText());
+    cargarTabla(ui->comboFiltroEstado->currentText());
 }

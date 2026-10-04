@@ -96,7 +96,7 @@ Para garantizar la integridad y coherencia de los datos almacenados, Argos imple
 | :--- | :---: | :--- | :--- |
 | **Nombre** | **Sí** | **Solo texto alfabético:** Únicamente acepta letras mayúsculas, minúsculas, vocales acentuadas (`á, é, í, ó, ú`), diéresis (`ü`), letra `ñ` y espacios simples entre palabras.<br>*No se permiten números (0-9), símbolos (`@`, `_`, `-`, `#`, etc.) ni signos de puntuación.* | **Bloqueo en tiempo real:** El teclado no permite escribir dígitos ni símbolos dentro del cuadro de texto. Al intentar guardar, se valida que cumpla la estructura correcta. |
 | **Email (Dato Protegido)** | **Sí** | Formato de correo electrónico válido estándar: debe contener usuario, símbolo `@`, nombre de servidor y extensión (`ejemplo@dominio.com`). | Si el formato no coincide, se muestra un mensaje explicativo y se detiene la operación. |
-| **Edad** | **Sí** | Número entero positivo comprendido entre 1 y 120 años. | Control numérico con botones de incremento/decremento (`QSpinBox`), previniendo valores fuera de rango o caracteres no numéricos. |
+| **Edad** | **Sí** | Número entero positivo comprendido entre 18 y 60 años. | Control numérico personalizado (`AgeSpinBox`) con botones de incremento/decremento, inicio vacío para requerir carga obligatoria y validación de rango operativo (18 a 60 años). |
 | **Tarea Asignada** | No | Descripción libre del trabajo asignado (ej: *Auditoría de seguridad*, *Deploy a producción*). | Acepta cualquier texto explicativo. |
 | **Estado de la Tarea** | **Sí** | Uno de los 3 valores disponibles en la lista desplegable: **`Pendiente`**, **`En Proceso`** o **`Finalizado`**. | Se selecciona desde el menú desplegable. |
 

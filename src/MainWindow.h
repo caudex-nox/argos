@@ -1,12 +1,11 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QLineEdit>
-#include "AgeSpinBox.h"
-#include <QComboBox>
-#include <QTableWidget>
-#include <QPushButton>
 #include "sqlite3.h"
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -34,25 +33,6 @@ private:
     // Enlace de parámetros SQL
     static void bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, const QString& emailCifrado, int edad, const QString& tarea, const QString& estado);
 
+    Ui::MainWindow* ui;
     sqlite3* db = nullptr;
-
-    // Campos de entrada (txtId es interno para operaciones CRUD y no se expone en la interfaz)
-    QLineEdit* txtId;
-    QLineEdit* txtNombre;
-    QLineEdit* txtEmailSensible;
-    AgeSpinBox* spinEdad;
-    QLineEdit* txtTarea;
-    QComboBox* comboEstado;
-
-    // Filtro de monitoreo
-    QComboBox* comboFiltroEstado;
-
-    // Botones
-    QPushButton* btnInsertar;
-    QPushButton* btnActualizar;
-    QPushButton* btnEliminar;
-    QPushButton* btnLimpiar;
-
-    // Tabla
-    QTableWidget* tablaUsuarios;
 };

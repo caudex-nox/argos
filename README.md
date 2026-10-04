@@ -20,7 +20,7 @@ Este proyecto fue desarrollado como trabajo final para la materia **Programació
 * **Monitoreo y Filtrado de Tareas:** Visualización tabular dinámica con filtro en tiempo real por estado (*Pendiente*, *En Proceso*, *Finalizado* y *Todos*).
 * **Seguridad y Cifrado Local:** Protección de datos sensibles (campo de correo electrónico) mediante cifrado simétrico por operación XOR y codificación Base64 en disco.
 * **Consultas Parametrizadas Seguras:** Comunicación nativa mediante la C API de SQLite 3 con sentencias preparadas (*Prepared Statements*) para optimizar el rendimiento y prevenir inyecciones SQL.
-* **Interfaz Gráfica Nativa:** Construida con Qt 6 Widgets (`QLineEdit`, `QSpinBox`, `QComboBox`, `QPushButton`, `QTableWidget`).
+* **Interfaz Gráfica Declarativa y Modular:** Construida y maquetada mediante [MainWindow.ui](src/MainWindow.ui) con Qt 6 Widgets (`QLineEdit`, `AgeSpinBox`, `QComboBox`, `QPushButton`, `QTableWidget`), desacoplando el diseño visual del código C++.
 * **Multiplataforma:** Diseñado y optimizado para compilar y ejecutar de forma nativa en entornos Linux y Windows.
 
 ---
@@ -28,9 +28,9 @@ Este proyecto fue desarrollado como trabajo final para la materia **Programació
 ## 🛠️ Tecnologías Utilizadas
 
 * **Lenguaje:** C++17
-* **Interfaz Gráfica:** Qt 6 (Módulo `Widgets`)
+* **Interfaz Gráfica:** Qt 6 (Módulo `Widgets`, motor `uic`)
 * **Base de Datos:** SQLite 3 (API nativa de C)
-* **Sistema de Construcción:** CMake (v3.16+)
+* **Sistema de Construcción:** CMake (v3.16+) con exportación de base de comandos de compilación
 
 ---
 
@@ -41,7 +41,7 @@ Argos/
 ├── assets/                 # Recursos gráficos
 │   └── images/             # Imágenes y logotipos para la aplicación y README
 ├── docs/                   # Documentación del sistema
-│   ├── DOCUMENTACION_TECNICA.md # Guía detallada de arquitectura y ciclo de vida SQLite
+│   ├── DOCUMENTACION_TECNICA.md # Guía detallada de arquitectura, uic y ciclo de vida SQLite
 │   └── MANUAL_DE_USUARIO.md  # Manual de usuario y guía operativa de la aplicación
 ├── resources/              # Iconos y recursos para compilación Qt y Windows
 │   ├── app.qrc             # Archivo de recursos Qt embebidos
@@ -49,8 +49,10 @@ Argos/
 │   ├── argos-icon.ico      # Icono en formato .ico para Windows
 │   └── argos-icon.png      # Icono en formato .png para ventanas Linux/Qt
 ├── src/                    # Código fuente de la aplicación
-│   ├── MainWindow.h        # Definición de la clase MainWindow, campos y slots
+│   ├── AgeSpinBox.h        # SpinBox especializado con validación y rango 18-60
+│   ├── MainWindow.h        # Declaración de la clase MainWindow y slots
 │   ├── MainWindow.cpp      # Lógica de interfaz, operaciones CRUD y acceso a SQLite
+│   ├── MainWindow.ui       # Formulario y maquetación visual declarativa (Qt Designer)
 │   ├── main.cpp            # Punto de entrada de la aplicación
 │   ├── sqlite3.c           # Implementación C incrustada de SQLite 3 (amalgamation)
 │   └── sqlite3.h           # Cabecera C API de SQLite 3
@@ -69,7 +71,7 @@ Como parte del diseño conceptual inicial y como posibles líneas de evolución 
 * **👑 Control Jerárquico de Roles y Permisos:** Sistema granular de privilegios (administradores, supervisores, empleados) para restringir el acceso a módulos y operaciones específicas.
 * **🔐 Módulo de Autenticación y Cuentas de Usuario:** Flujo de inicio de sesión seguro (`LoginWindow`), gestión de sesiones y paneles de control dedicados (`DashboardWindow`).
 * **🛡️ Cifrado Avanzado con SQLCipher:** Migración del cifrado XOR a nivel de campo hacia una protección criptográfica robusta a nivel de archivo completo utilizando el estándar AES-256 de SQLCipher.
-* **🧩 Arquitectura Modular (MVC):** Desacoplar la lógica en controladores dedicados (`controllers/`), modelos de dominio (`models/`), vistas UI (`.ui`) y un administrador centralizado de persistencia (`DatabaseManager`).
+* **🧩 Arquitectura en Capas / MVC Completo:** Desacoplar la persistencia en repositorios dedicados (`DatabaseManager`), aislando completamente las consultas SQL de la clase `MainWindow`.
 
 ---
 
@@ -129,20 +131,17 @@ cd argos
 #### **En Linux:**
 
 ```bash
-mkdir build && cd build
-cmake ..
-make
-./Argos-CRUD
+cmake -B build -S .
+cmake --build build -j$(nproc)
+./build/Argos-CRUD
 ```
 
 #### **En Windows (PowerShell / CMD con MinGW):**
 
 ```powershell
-mkdir build
-cd build
-cmake -G "MinGW Makefiles" ..
-mingw32-make
-.\Argos-CRUD.exe
+cmake -B build -S . -G "MinGW Makefiles"
+cmake --build build
+.\build\Argos-CRUD.exe
 ```
 
 ---
@@ -150,7 +149,7 @@ mingw32-make
 ## 📖 Documentación y Manuales
 
 * 📘 **Manual de Usuario:** Consulta el [MANUAL_DE_USUARIO.md](docs/MANUAL_DE_USUARIO.md) para aprender a utilizar la interfaz, dar de alta registros, filtrar actividades y comprender las validaciones del sistema.
-* 🛠️ **Documentación Técnica:** Para conocer en detalle la arquitectura de la base de datos, el ciclo de vida de las consultas SQLite3 con la API C y el mapeo de Señales y Slots en Qt 6, consulta el archivo [DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md).
+* 🛠️ **Documentación Técnica:** Para conocer en detalle la arquitectura del sistema, la separación visual con Qt Designer (`MainWindow.ui`), el ciclo de vida de las consultas SQLite3 con la API C y el mapeo de Señales y Slots, consulta el archivo [DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md).
 
 ---
 

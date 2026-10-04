@@ -5,7 +5,7 @@
 **Materia:** Programación II  
 **Carrera:** Tecnicatura en Desarrollo de Software  
 **Año:** 2026  
-**Tecnologías:** C++17, Qt 6 (Widgets), SQLite 3 (C API), CMake  
+**Tecnologías:** C++17, Qt 6 (Widgets, UIC), SQLite 3 (C API), CMake  
 
 ---
 
@@ -23,9 +23,10 @@
 6. [Cifrado y Seguridad de Datos Sensibles](#6-cifrado-y-seguridad-de-datos-sensibles)
 7. [Mapeo de Señales y Slots (Qt 6 UI ↔ Lógica)](#7-mapeo-de-señales-y-slots-qt-6-ui--lógica)
 8. [Comparativa Técnica: SQLite 3 C API vs QtSql](#8-comparativa-técnica-sqlite-3-c-api-vs-qtsql)
-9. [Compilación y Ejecución](#9-compilación-y-ejecución)
+9. [Compilación y Herramientas de Desarrollo](#9-compilación-y-herramientas-de-desarrollo)
    - [9.1 Requisitos Previos e Instalación](#91-requisitos-previos-e-instalación)
    - [9.2 Pasos de Compilación con CMake](#92-pasos-de-compilación-con-cmake)
+   - [9.3 Soporte para Editores y LSPs (compile_commands.json)](#93-soporte-para-editores-y-lsps-compile_commandsjson)
 10. [Escalabilidad y Líneas de Evolución Futura](#10-escalabilidad-y-líneas-de-evolución-futura)
 
 ---
@@ -34,20 +35,23 @@
 
 **Argos** es una aplicación de escritorio multiplataforma desarrollada en **C++17**, **Qt 6 (Widgets)** y **SQLite 3**, orientada a la administración de usuarios y al monitoreo de tareas en tiempo real. Permite realizar operaciones CRUD completas, gestionar estados de actividades y proteger información sensible mediante cifrado local, todo desde una interfaz gráfica clara y moderna.
 
-Este proyecto fue desarrollado como trabajo final para la materia **Programación II** de la carrera **Tecnicatura en Desarrollo de Software** por la organización **Caudex**.
+El proyecto implementa una clara separación de responsabilidades:
+- **Capa Visual Declarativa (`MainWindow.ui`):** Diseñada de forma desacoplada con Qt Designer y procesada por la herramienta `uic` de Qt (`ui_MainWindow.h`), eliminando la maquetación procedimental en C++.
+- **Capa de Control y Lógica de Negocio (`MainWindow.h` / `MainWindow.cpp`):** Coordina los eventos (Señales y Slots), aplica validaciones mediante expresiones regulares, invoca widgets especializados como `AgeSpinBox` y gestiona el cifrado/descifrado simétrico de datos sensibles.
+- **Capa de Persistencia (`sqlite3.c` / `sqlite3.h`):** Utiliza la API nativa en C de SQLite 3 mediante sentencias preparadas (*Prepared Statements*) para asegurar máxima eficiencia e inmunidad ante inyecciones SQL.
 
 ### Diagrama de Flujo de Datos
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                    Capa de Presentación                      │
-│     (Qt 6 Widgets: QLineEdit, QComboBox, QTableWidget)       │
+│     (MainWindow.ui → UIC → Widgets: QLineEdit, QTableWidget) │
 └──────────────────────────────┬───────────────────────────────┘
                                │ Eventos de usuario (Signals)
                                ▼
 ┌──────────────────────────────────────────────────────────────┐
 │                    Capa de Control y Lógica                  │
-│   (MainWindow: validación, cifrado XOR y binding de datos)   │
+│    (MainWindow: validación, cifrado XOR y binding seguro)    │
 └──────────────────────────────┬───────────────────────────────┘
                                │ Prepared Statements (C API)
                                ▼
@@ -61,27 +65,30 @@ Este proyecto fue desarrollado como trabajo final para la materia **Programació
 
 ## 2. Estructura del Proyecto
 
-La organización del repositorio separa claramente el código fuente, la documentación técnica, los recursos gráficos del sistema y la configuración de construcción con CMake:
+La organización del repositorio separa el código fuente, la interfaz declarativa, la documentación técnica, los recursos gráficos y la configuración de CMake:
 
 ```text
 Argos/
 ├── assets/                 # Recursos gráficos
 │   └── images/             # Logotipos e imágenes para la aplicación y documentación
-├── docs/                   # Documentación técnica extendida
-│   └── CRUD_DOCUMENTACION.md # Guía detallada de arquitectura y ciclo de vida SQLite 3
+├── docs/                   # Documentación técnica y manuales
+│   ├── DOCUMENTACION_TECNICA.md # Guía detallada de arquitectura y ciclo de vida SQLite 3
+│   └── MANUAL_DE_USUARIO.md  # Manual operativo y casos de uso para el usuario final
 ├── resources/              # Iconos y recursos para compilación Qt y Windows
 │   ├── app.qrc             # Archivo de recursos Qt embebidos
 │   ├── app.rc              # Metadatos e icono de aplicación para Windows
 │   ├── argos-icon.ico      # Icono en formato .ico para Windows
 │   └── argos-icon.png      # Icono en formato .png para ventanas Linux/Qt
 ├── src/                    # Código fuente de la aplicación
-│   ├── MainWindow.h        # Definición de la clase MainWindow, campos y slots
-│   ├── MainWindow.cpp      # Lógica de interfaz, operaciones CRUD y acceso a SQLite
+│   ├── AgeSpinBox.h        # SpinBox personalizado con validación de rango (18-60)
+│   ├── MainWindow.h        # Definición de la clase controladora MainWindow y slots
+│   ├── MainWindow.cpp      # Implementación de lógica, señales/slots y acceso a SQLite
+│   ├── MainWindow.ui       # Formulario y maquetación visual declarativa (Qt Designer)
 │   ├── main.cpp            # Punto de entrada de la aplicación
-│   ├── sqlite3.c           # Implementación C incrustada del motor SQLite
-│   └── sqlite3.h           # Cabecera de la C API de SQLite
+│   ├── sqlite3.c           # Implementación C incrustada del motor SQLite 3
+│   └── sqlite3.h           # Cabecera de la C API de SQLite 3
 ├── .gitignore              # Archivos y artefactos de compilación excluidos de Git
-├── CMakeLists.txt          # Configuración de compilación con CMake
+├── CMakeLists.txt          # Configuración de compilación con CMake y AUTOUIC
 └── README.md               # Documentación general del proyecto
 ```
 
@@ -89,7 +96,7 @@ Argos/
 
 ## 3. Estructura de la Base de Datos
 
-La base de datos se inicializa en el método `MainWindow::initDatabase()` y se almacena en el directorio local de datos de usuario provisto por el sistema mediante `QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)`. El archivo de persistencia generado es `usuarios_tareas.db`.
+La base de datos se inicializa en el método `MainWindow::initDatabase()` y se almacena en el directorio local de datos de usuario provisto por el sistema operativo mediante `QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)`. El archivo generado es `usuarios_tareas.db`.
 
 ### Esquema de la Tabla e Índices
 
@@ -111,8 +118,8 @@ CREATE INDEX IF NOT EXISTS idx_usuarios_estado ON usuarios(estado);
 | Campo | Tipo SQL | Descripción | Restricciones |
 | :--- | :--- | :--- | :--- |
 | `id` | `INTEGER` | Identificador único autoincremental | Clave primaria (`PRIMARY KEY AUTOINCREMENT`) |
-| `nombre` | `TEXT` | Nombre del usuario/empleado | `NOT NULL` |
-| `email` | `TEXT` | Correo electrónico almacenado en formato cifrado (XOR + Base64) | `NOT NULL` |
+| `nombre` | `TEXT` | Nombre del usuario/empleado | `NOT NULL`, validado solo caracteres alfabéticos |
+| `email` | `TEXT` | Correo electrónico almacenado en formato cifrado (XOR + Base64) | `NOT NULL`, formato de email validado |
 | `edad` | `INTEGER` | Edad del usuario | Rango validado (18-60), ingreso manual requerido |
 | `tarea` | `TEXT` | Descripción de la actividad asignada | Opcional |
 | `estado` | `TEXT` | Estado de progreso de la tarea asignada | Por defecto `'Pendiente'` (`'Pendiente'`, `'En Proceso'`, `'Finalizado'`) |
@@ -153,7 +160,7 @@ Para garantizar el máximo rendimiento y prevenir vulnerabilidades de **Inyecci�
 
 ## 5. Operaciones CRUD
 
-Para evitar duplicación de código en la preparación de parámetros, el enlace de atributos compartidos entre inserciones y actualizaciones se centralizó en la función auxiliar estática `MainWindow::bindCamposUsuario`:
+Para evitar duplicación de código en la preparación de parámetros, el enlace de atributos compartidos entre inserciones y actualizaciones se centraliza en la función auxiliar estática `MainWindow::bindCamposUsuario`:
 
 ```cpp
 void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, const QString& emailCifrado, int edad, const QString& tarea, const QString& estado) {
@@ -172,18 +179,15 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
 ### 5.1 Create (Insertar Registro)
 
 * **Método:** `MainWindow::handleInsertar()`
-* **Disparador:** Señal `clicked()` de `btnInsertar`.
+* **Disparador:** Señal `clicked()` de `ui->btnInsertar`.
 
 #### Flujo paso a paso:
-1. **Validación:** Se comprueba que `nombre` y `email` contengan texto válido.
-2. **Cifrado:** El correo se cifra mediante la función `cifrar()`.
-3. **Preparación y Enlace de Parámetros:**
-=======
 1. **Validación de Campos Requeridos:** Se comprueba que `nombre` y `email` no estén vacíos.
-2. **Validación de Formato de Nombre:** Se restringe la entrada tanto en tiempo real mediante `QRegularExpressionValidator` como al enviar el formulario mediante la expresión regular `QRegularExpression(R"(^[\p{L}]+(?:\s+[\p{L}]+)*$)")`. Esto garantiza que el nombre únicamente contenga caracteres alfabéticos (incluyendo tildes, diéresis y la letra ñ) y espacios individuales, prohibiendo números o caracteres especiales.
-3. **Validación de Formato de Email:** Se utiliza una expresión regular estricta (`QRegularExpression regex(R"(^[^@\s]+@[^@\s]+\.[^@\s]{2,}$)")`) para verificar que el correo cuente con estructura de usuario, dominio y extensión válidos.
-4. **Cifrado del Email:** Se transforma el correo en texto cifrado seguro mediante `cifrar(email)`.
-5. **Preparación y Enlace:**
+2. **Validación de Edad:** Se valida mediante `ui->spinEdad->hasValidAge()` que la edad se encuentre entre 18 y 60 años.
+3. **Validación de Formato de Nombre:** Se restringe la entrada tanto en tiempo real mediante `QRegularExpressionValidator` como al enviar el formulario con la expresión regular `QRegularExpression(R"(^[\p{L}]+(?:\s+[\p{L}]+)*$)")`. Esto garantiza que el nombre únicamente contenga caracteres alfabéticos (incluyendo tildes, diéresis y la letra ñ) y espacios individuales, prohibiendo números o caracteres especiales.
+4. **Validación de Formato de Email:** Se utiliza la expresión regular `QRegularExpression(R"(^[^@\s]+@[^@\s]+\.[^@\s]{2,}$)")` para verificar que el correo cuente con estructura de usuario, dominio y extensión válidos.
+5. **Cifrado del Email:** Se transforma el correo en texto cifrado seguro mediante `cifrar(email)`.
+6. **Preparación y Enlace:**
    ```cpp
    const char* sql = "INSERT INTO usuarios (nombre, email, edad, tarea, estado) VALUES (?, ?, ?, ?, ?);";
    sqlite3_stmt* stmt;
@@ -195,17 +199,17 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
 
    bindCamposUsuario(stmt, nombre, emailCifrado, edad, tarea, estado);
    ```
-5. **Ejecución y Limpieza:** Al retornar `SQLITE_DONE`, se vacían los campos del formulario (`handleLimpiar()`) y se recarga la tabla de datos (`cargarTabla()`).
+7. **Ejecución y Limpieza:** Al retornar `SQLITE_DONE`, se vacían los campos del formulario (`handleLimpiar()`) y se recarga la tabla de datos (`cargarTabla(ui->comboFiltroEstado->currentText())`).
 
 ---
 
 ### 5.2 Read (Consultar y Monitorear Registros)
 
 * **Método:** `MainWindow::cargarTabla(const QString& filtroEstado)`
-* **Disparadores:** Inicialización del programa, tras cambios en la BD, o al cambiar el valor del combo de filtro `comboFiltroEstado`.
+* **Disparadores:** Inicialización del programa, tras cambios en la BD, o al cambiar el valor del combo de filtro `ui->comboFiltroEstado`.
 
 #### Flujo paso a paso:
-1. **Optimización de Renderizado:** Se invoca `tablaUsuarios->setUpdatesEnabled(false)` para deshabilitar temporalmente el repintado de la interfaz y evitar parpadeos durante la carga masiva.
+1. **Optimización de Renderizado:** Se invoca `ui->tablaUsuarios->setUpdatesEnabled(false)` para deshabilitar temporalmente el repintado de la interfaz y evitar parpadeos durante la carga masiva.
 2. **Construcción del Query Dinámico:**
    ```cpp
    QString query = "SELECT id, nombre, email, edad, tarea, estado FROM usuarios";
@@ -218,7 +222,7 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
    ```cpp
    int row = 0;
    while (sqlite3_step(stmt) == SQLITE_ROW) {
-       tablaUsuarios->insertRow(row);
+       ui->tablaUsuarios->insertRow(row);
 
        int id = sqlite3_column_int(stmt, 0);
        QString nombre = QString::fromUtf8(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
@@ -230,17 +234,17 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
        // Descifrado para presentación en la vista
        QString emailClaro = descifrar(emailCifrado);
 
-       tablaUsuarios->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
-       tablaUsuarios->setItem(row, 1, new QTableWidgetItem(nombre));
-       tablaUsuarios->setItem(row, 2, new QTableWidgetItem(emailClaro));
-       tablaUsuarios->setItem(row, 3, new QTableWidgetItem(QString::number(edad)));
-       tablaUsuarios->setItem(row, 4, new QTableWidgetItem(tareaTxt ? QString::fromUtf8(tareaTxt) : ""));
-       tablaUsuarios->setItem(row, 5, new QTableWidgetItem(estadoTxt ? QString::fromUtf8(estadoTxt) : "Pendiente"));
+       ui->tablaUsuarios->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
+       ui->tablaUsuarios->setItem(row, 1, new QTableWidgetItem(nombre));
+       ui->tablaUsuarios->setItem(row, 2, new QTableWidgetItem(emailClaro));
+       ui->tablaUsuarios->setItem(row, 3, new QTableWidgetItem(QString::number(edad)));
+       ui->tablaUsuarios->setItem(row, 4, new QTableWidgetItem(tareaTxt ? QString::fromUtf8(tareaTxt) : ""));
+       ui->tablaUsuarios->setItem(row, 5, new QTableWidgetItem(estadoTxt ? QString::fromUtf8(estadoTxt) : "Pendiente"));
 
        row++;
    }
    sqlite3_finalize(stmt);
-   tablaUsuarios->setUpdatesEnabled(true);
+   ui->tablaUsuarios->setUpdatesEnabled(true);
    ```
 
 ---
@@ -248,26 +252,27 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
 ### 5.3 Update (Actualizar Registro)
 
 * **Método:** `MainWindow::handleActualizar()`
-* **Disparador:** Señal `clicked()` de `btnActualizar`.
+* **Disparador:** Señal `clicked()` de `ui->btnActualizar`.
 
 #### Flujo paso a paso:
-1. **Comprobación de ID:** Requiere que el campo de solo lectura `txtId` tenga un ID cargado (seleccionado previamente de la tabla).
-2. **Consulta Parametrizada:**
-=======
-1. **Comprobación de Selección:** Requiere que exista un ID cargado en memoria (`txtId`) tras seleccionar una fila de la tabla.
-2. **Validación de Datos:** Se aplican los mismos filtros que en la inserción: presencia de campos obligatorios, validación de caracteres del nombre (solo letras y espacios individuales) y validez del correo electrónico.
-3. **Consulta Parametrizada:**
-   ```sql
-   UPDATE usuarios SET nombre = ?, email = ?, edad = ?, tarea = ?, estado = ? WHERE id = ?;
-   ```
-3. **Binding y Ejecución:**
+1. **Comprobación de Selección:** Requiere que exista un ID cargado en memoria (`ui->txtId`) tras seleccionar una fila de la tabla.
+2. **Validación de Datos:** Se aplican las mismas reglas que en la inserción (campos requeridos, formato de nombre, edad válida y email correcto).
+3. **Consulta Parametrizada y Binding:**
    ```cpp
+   const char* sql = "UPDATE usuarios SET nombre = ?, email = ?, edad = ?, tarea = ?, estado = ? WHERE id = ?;";
+   sqlite3_stmt* stmt;
+
+   if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+       QMessageBox::critical(this, "Error", sqlite3_errmsg(db));
+       return;
+   }
+
    bindCamposUsuario(stmt, nombre, emailCifrado, edad, tarea, estado);
    sqlite3_bind_int(stmt, 6, id);
 
    if (sqlite3_step(stmt) == SQLITE_DONE) {
        handleLimpiar();
-       cargarTabla(comboFiltroEstado->currentText());
+       cargarTabla(ui->comboFiltroEstado->currentText());
    }
    sqlite3_finalize(stmt);
    ```
@@ -277,20 +282,26 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
 ### 5.4 Delete (Eliminar Registro)
 
 * **Método:** `MainWindow::handleEliminar()`
-* **Disparador:** Señal `clicked()` de `btnEliminar`.
+* **Disparador:** Señal `clicked()` de `ui->btnEliminar`.
 
 #### Flujo paso a paso:
-1. **Validación:** Comprueba la existencia de un ID seleccionado en `txtId`.
+1. **Validación:** Comprueba la existencia de un ID seleccionado en `ui->txtId`.
 2. **Ejecución del Borrado:**
    ```cpp
+   int id = ui->txtId->text().toInt();
    const char* sql = "DELETE FROM usuarios WHERE id = ?;";
    sqlite3_stmt* stmt;
-   sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+   if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+       QMessageBox::critical(this, "Error", sqlite3_errmsg(db));
+       return;
+   }
+
    sqlite3_bind_int(stmt, 1, id);
 
    if (sqlite3_step(stmt) == SQLITE_DONE) {
        handleLimpiar();
-       cargarTabla(comboFiltroEstado->currentText());
+       cargarTabla(ui->comboFiltroEstado->currentText());
    }
    sqlite3_finalize(stmt);
    ```
@@ -299,7 +310,7 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
 
 ## 6. Cifrado y Seguridad de Datos Sensibles
 
-Para mitigar el riesgo de filtraciones al inspeccionar directamente el archivo físico `.db` en disco, la aplicación implementa una capa de protección criptográfica simétrica para datos sensibles (como la columna `email`):
+Para mitigar el riesgo de filtraciones al inspeccionar directamente el archivo físico `.db` en disco, la aplicación implementa una capa de protección criptográfica simétrica para el campo `email`:
 
 ```cpp
 const quint8 CLAVE_ENCRIPTACION = 0x6C;
@@ -328,21 +339,19 @@ QString MainWindow::descifrar(const QString& texto) {
 
 ## 7. Mapeo de Señales y Slots (Qt 6 UI ↔ Lógica)
 
-En Qt 6, los eventos de la interfaz gráfica se comunican con el código C++ mediante el mecanismo tipado de **Signals & Slots**:
+La comunicación entre los componentes definidos en `MainWindow.ui` y los métodos de `MainWindow` se realiza mediante **Signals & Slots**:
 
 ```cpp
-connect(btnInsertar, &QPushButton::clicked, this, &MainWindow::handleInsertar);
-connect(btnActualizar, &QPushButton::clicked, this, &MainWindow::handleActualizar);
-connect(btnEliminar, &QPushButton::clicked, this, &MainWindow::handleEliminar);
-connect(btnLimpiar, &QPushButton::clicked, this, &MainWindow::handleLimpiar);
-connect(tablaUsuarios, &QTableWidget::cellClicked, this, &MainWindow::handleRowSelected);
-connect(comboFiltroEstado, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::handleFiltrarPorEstado);
+connect(ui->btnInsertar, &QPushButton::clicked, this, &MainWindow::handleInsertar);
+connect(ui->btnActualizar, &QPushButton::clicked, this, &MainWindow::handleActualizar);
+connect(ui->btnEliminar, &QPushButton::clicked, this, &MainWindow::handleEliminar);
+connect(ui->btnLimpiar, &QPushButton::clicked, this, &MainWindow::handleLimpiar);
+connect(ui->tablaUsuarios, &QTableWidget::cellClicked, this, &MainWindow::handleRowSelected);
+connect(ui->comboFiltroEstado, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::handleFiltrarPorEstado);
 ```
 
-* **Selección de Fila:** Al hacer clic en cualquier celda de `QTableWidget`, el slot `handleRowSelected(int row, int col)` rellena automáticamente los campos del formulario con los valores de la fila elegida para facilitar la edición o eliminación.
-=======
-* **Carga de Registro al Formulario:** Al hacer clic en cualquier celda de `tablaUsuarios`, el slot `handleRowSelected(int row, int col)` extrae los datos de la fila y los coloca en los campos del formulario (`txtNombre`, `txtEmailSensible`, `spinEdad`, `txtTarea`, `comboEstado`) y almacena internamente el ID en `txtId` para habilitar operaciones de actualización o eliminación.
-* **Ocultación de la Clave Primaria:** Por motivos de diseño y seguridad de la información, el ID autoincremental (`PRIMARY KEY`) no es visible en la interfaz: la primera columna de `tablaUsuarios` se mantiene oculta mediante `tablaUsuarios->setColumnHidden(0, true)` y el campo `txtId` no se incluye en el formulario visual.
+* **Carga de Registro al Formulario:** Al hacer clic en cualquier celda de `ui->tablaUsuarios`, el slot `handleRowSelected(int row, int col)` extrae los datos de la fila y los coloca en los campos del formulario (`ui->txtNombre`, `ui->txtEmailSensible`, `ui->spinEdad`, `ui->txtTarea`, `ui->comboEstado`) y almacena internamente el ID en `ui->txtId` para habilitar operaciones de actualización o eliminación.
+* **Ocultación de la Clave Primaria:** Por motivos de diseño y seguridad de la información, el ID autoincremental (`PRIMARY KEY`) no es visible al usuario: la primera columna de la tabla se mantiene oculta mediante `ui->tablaUsuarios->setColumnHidden(0, true)` y el campo `txtId` se declara oculto en el diseño visual de `MainWindow.ui`.
 
 ---
 
@@ -357,7 +366,7 @@ connect(comboFiltroEstado, QOverload<int>::of(&QComboBox::currentIndexChanged), 
 
 ---
 
-## 9. Compilación y Ejecución
+## 9. Compilación y Herramientas de Desarrollo
 
 ### 9.1 Requisitos Previos e Instalación
 
@@ -404,7 +413,6 @@ pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86
 ### 9.2 Pasos de Compilación con CMake
 
 #### 1. Clonar el repositorio
-
 ```bash
 git clone https://github.com/caudex-nox/argos.git
 cd argos
@@ -414,20 +422,27 @@ cd argos
 
 ##### **En Linux:**
 ```bash
-mkdir build && cd build
-cmake ..
-make
-./Argos-CRUD
+cmake -B build -S .
+cmake --build build -j$(nproc)
+./build/Argos-CRUD
 ```
 
 ##### **En Windows (PowerShell / CMD con MinGW):**
 ```powershell
-mkdir build
-cd build
-cmake -G "MinGW Makefiles" ..
-mingw32-make
-.\Argos-CRUD.exe
+cmake -B build -S . -G "MinGW Makefiles"
+cmake --build build
+.\build\Argos-CRUD.exe
 ```
+
+---
+
+### 9.3 Soporte para Editores y LSPs (compile_commands.json)
+
+El archivo `CMakeLists.txt` incluye la directiva:
+```cmake
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+```
+Esto genera automáticamente la base de datos de compilación `build/compile_commands.json`. Servidores de lenguaje como **clangd** (utilizado por el editor **Zed**, Neovim o VS Code) leen este archivo para localizar las cabeceras de Qt 6 y las cabeceras autogeneradas por UIC (`ui_MainWindow.h`), garantizando un autocompletado preciso y cero falsos errores en el editor.
 
 ---
 
@@ -439,4 +454,4 @@ Como parte del diseño conceptual inicial y como posibles líneas de evolución 
 * **👑 Control Jerárquico de Roles y Permisos:** Sistema granular de privilegios (administradores, supervisores, empleados) para restringir el acceso a módulos y operaciones específicas.
 * **🔐 Módulo de Autenticación y Cuentas de Usuario:** Flujo de inicio de sesión seguro (`LoginWindow`), gestión de sesiones y paneles de control dedicados (`DashboardWindow`).
 * **🛡️ Cifrado Avanzado con SQLCipher:** Migración del cifrado XOR a nivel de campo hacia una protección criptográfica robusta a nivel de archivo completo utilizando el estándar AES-256 de SQLCipher.
-* **🧩 Arquitectura Modular (MVC):** Desacoplar la lógica en controladores dedicados (`controllers/`), modelos de dominio (`models/`), vistas UI (`.ui`) y un administrador centralizado de persistencia (`DatabaseManager`).
+* **🧩 Arquitectura en Capas / Repositorio Completo:** Extraer la lógica de SQLite de `MainWindow` hacia una clase dedicada `UsuarioRepository` o `DatabaseManager`, desacoplando completamente la capa de persistencia de la interfaz gráfica.
