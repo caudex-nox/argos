@@ -145,8 +145,6 @@ mingw32-make
 .\Argos-CRUD.exe
 ```
 
-<<<<<<< Updated upstream
-=======
 ---
 
 ## 📖 Documentación y Manuales
