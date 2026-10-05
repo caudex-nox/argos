@@ -8,8 +8,10 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 
+// Clave simétrica para el cifrado de datos sensibles
 const quint8 CLAVE_ENCRIPTACION = 0x6C;
 
+// Cifrado de texto
 QString MainWindow::cifrar(const QString& texto) {
     QByteArray bytes = texto.toUtf8();
     for (int i = 0; i < bytes.size(); ++i) {
@@ -18,6 +20,7 @@ QString MainWindow::cifrar(const QString& texto) {
     return QString::fromLatin1(bytes.toBase64());
 }
 
+// Decodificación
 QString MainWindow::descifrar(const QString& texto) {
     QByteArray bytes = QByteArray::fromBase64(texto.toLatin1());
     for (int i = 0; i < bytes.size(); ++i) {
@@ -26,6 +29,7 @@ QString MainWindow::descifrar(const QString& texto) {
     return QString::fromUtf8(bytes);
 }
 
+// Vinculación de atributos del usuario a los parámetros de SQLite
 void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, const QString& emailCifrado, int edad, const QString& tarea, const QString& estado) {
     sqlite3_bind_text(stmt, 1, nombre.toUtf8().constData(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, emailCifrado.toLatin1().constData(), -1, SQLITE_TRANSIENT);
@@ -37,17 +41,17 @@ void MainWindow::bindCamposUsuario(sqlite3_stmt* stmt, const QString& nombre, co
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
-    // Configuración de validación para el campo Nombre
+    // Restricción del campo Nombre a caracteres alfabéticos y espacios
     QRegularExpression regexSoloLetras(R"(^[\p{L} ]*$)");
     ui->txtNombre->setValidator(new QRegularExpressionValidator(regexSoloLetras, this));
 
-    // Configuración de la tabla de visualización
+    // Oculta la columna ID
     ui->tablaUsuarios->setColumnHidden(0, true);
     ui->tablaUsuarios->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     initDatabase();
 
-    // Mapeo de Señales y Slots
+    // Conexión de las señales de interfaz con sus respectivos slots
     connect(ui->btnInsertar, &QPushButton::clicked, this, &MainWindow::handleInsertar);
     connect(ui->btnActualizar, &QPushButton::clicked, this, &MainWindow::handleActualizar);
     connect(ui->btnEliminar, &QPushButton::clicked, this, &MainWindow::handleEliminar);
@@ -58,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     cargarTabla();
 }
 
+// Cierre de la conexión con SQLite 3
 MainWindow::~MainWindow() {
     delete ui;
     if (db) {
@@ -65,6 +70,7 @@ MainWindow::~MainWindow() {
     }
 }
 
+// Inicialización de la base de datos local
 void MainWindow::initDatabase() {
     QString basePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(basePath);
@@ -91,7 +97,9 @@ void MainWindow::initDatabase() {
     }
 }
 
+// Consulta de registros
 void MainWindow::cargarTabla(const QString& filtroEstado) {
+    // Deshabilita el repintado para optimizar la inserción de filas
     ui->tablaUsuarios->setUpdatesEnabled(false);
     ui->tablaUsuarios->setRowCount(0);
 
@@ -123,6 +131,7 @@ void MainWindow::cargarTabla(const QString& filtroEstado) {
         const char* tareaTxt = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
         const char* estadoTxt = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
 
+        // Descifra el correo electrónico
         QString emailClaro = descifrar(emailCifrado);
 
         ui->tablaUsuarios->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
@@ -138,6 +147,7 @@ void MainWindow::cargarTabla(const QString& filtroEstado) {
     ui->tablaUsuarios->setUpdatesEnabled(true);
 }
 
+// Valida los datos del formulario, cifra el email e inserta el nuevo registro en la BD
 void MainWindow::handleInsertar() {
     QString nombre = ui->txtNombre->text().trimmed();
     QString email = ui->txtEmailSensible->text().trimmed();
@@ -189,6 +199,7 @@ void MainWindow::handleInsertar() {
     sqlite3_finalize(stmt);
 }
 
+// Valida la selección y campos modificados, cifra el email y actualiza el registro por su ID
 void MainWindow::handleActualizar() {
     if (ui->txtId->text().isEmpty()) {
         QMessageBox::warning(this, "Aviso", "Selecciona primero un registro de la tabla.");
@@ -247,6 +258,7 @@ void MainWindow::handleActualizar() {
     sqlite3_finalize(stmt);
 }
 
+// Elimina el registro seleccionado
 void MainWindow::handleEliminar() {
     if (ui->txtId->text().isEmpty()) {
         QMessageBox::warning(this, "Aviso", "Selecciona un registro de la tabla.");
@@ -273,6 +285,7 @@ void MainWindow::handleEliminar() {
     sqlite3_finalize(stmt);
 }
 
+// Restablece los campos del formulario
 void MainWindow::handleLimpiar() {
     ui->txtId->clear();
     ui->txtNombre->clear();
@@ -283,6 +296,7 @@ void MainWindow::handleLimpiar() {
     ui->tablaUsuarios->clearSelection();
 }
 
+// Traslada los datos de la fila seleccionada a los campos del formulario
 void MainWindow::handleRowSelected(int row, int) {
     if (row < 0 || !ui->tablaUsuarios->item(row, 0)) return;
 
@@ -297,6 +311,7 @@ void MainWindow::handleRowSelected(int row, int) {
     if (idx != -1) ui->comboEstado->setCurrentIndex(idx);
 }
 
+// Recarga la tabla filtrando por el estado de tarea seleccionado
 void MainWindow::handleFiltrarPorEstado(int) {
     cargarTabla(ui->comboFiltroEstado->currentText());
 }

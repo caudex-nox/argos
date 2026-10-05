@@ -19,8 +19,14 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="mainLayout">
+       
+    <!-- Formulario de datos -->
+    
     <item>
      <layout class="QFormLayout" name="formLayout">
+         
+      <!-- Campo ID (oculto) -->
+      
       <item row="0" column="1">
        <widget class="QLineEdit" name="txtId">
         <property name="visible">
@@ -108,6 +114,9 @@
       </item>
      </layout>
     </item>
+    
+    <!-- Botonera de acciones (operaciones CRUD) -->
+    
     <item>
      <layout class="QHBoxLayout" name="btnLayout">
       <item>
@@ -140,6 +149,9 @@
       </item>
      </layout>
     </item>
+    
+    <!-- Barra de monitoreo y filtrado en tiempo real -->
+    
     <item>
      <layout class="QHBoxLayout" name="filterLayout">
       <item>
@@ -188,6 +200,9 @@
       </item>
      </layout>
     </item>
+    
+    <!-- Tabla interactiva de registros -->
+    
     <item>
      <widget class="QTableWidget" name="tablaUsuarios">
       <property name="editTriggers">
@@ -238,6 +253,9 @@
   </widget>
  </widget>
  <customwidgets>
+     
+  <!-- Widget numérico con validación de rango (18-60) -->
+  
   <customwidget>
    <class>AgeSpinBox</class>
    <extends>QSpinBox</extends>
