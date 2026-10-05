@@ -4,9 +4,11 @@
   <img src="../assets/images/argos-light-theme.svg" width="180" alt="Logo de Argos">
 </p>
 
-**Versión:** 1.1  
+**Versión:** 1.2  
 **Organización:** Caudex  
-**Proyecto:** Argos (CRUD con C++17, Qt 6 y SQLite 3)  
+**Equipo de Desarrollo:** • Calligaro, Axel • Garcia, Franco • Manente, Carlos  
+**Proyecto:** Argos – Sistema CRUD de bajo nivel con base de datos persistente  
+**Tecnologías:** C++17, Qt 6 y SQLite 3  
 **Fecha:** 2026  
 
 ---
