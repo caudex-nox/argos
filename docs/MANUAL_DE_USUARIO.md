@@ -189,8 +189,8 @@ Argos cuenta con un filtro en tiempo real (`QRegularExpressionValidator`) en el 
 ### Mensaje: *"Nombre y Email son requeridos."*
 Asegúrese de no haber dejado en blanco el campo de Nombre o el de Email. Ambos datos son obligatorios para dar de alta o modificar a un usuario.
 
-### Mensaje: *"El Nombre solo debe contener letras (sin números ni caracteres especiales)."*
-Este mensaje aparece si el nombre contiene caracteres no permitidos o si se dejaron espacios en blanco continuos. Ingrese únicamente letras y espacios sencillos entre palabras.
+### Mensaje: *"La edad es requerida y debe estar comprendida entre 18 y 60 años."*
+Este mensaje aparece si no se especifica la edad, si se introducen caracteres no numéricos o si el valor ingresado es menor a 18 o mayor a 60 años. Asegúrese de completar el campo con un número dentro del rango habilitado.
 
 ### Mensaje: *"El formato del email no es válido..."*
 Asegúrese de que el correo contenga la estructura tradicional: un nombre de usuario, el signo `@`, un dominio y una extensión de al menos dos letras (por ejemplo: `usuario@correo.com`).
