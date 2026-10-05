@@ -15,7 +15,7 @@ if(WIN32)
     set(WINDOWS_RESOURCES resources/app.rc)
 endif()
 
-add_executable(Argos-CRUD
+add_executable(Argos-CRUD WIN32
     src/main.cpp
     src/MainWindow.h
     src/MainWindow.cpp
